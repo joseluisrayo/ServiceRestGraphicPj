@@ -1,0 +1,2 @@
+#Para usar este test se debe instalar la extencion rest client en visual studio code
+http://localhost:4000/api/getListadoExpIngresos/2021-01-23/2022-08-10

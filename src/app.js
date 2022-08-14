@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors"
 import { cacheInit } from "./routers/cache";
+import responseTime from "response-time";
 
 //Routes
 import languageRoutes from "./routers/languaje.routes";
@@ -12,6 +13,7 @@ const app = express();
 app.set("port", 4000);
 app.use(cors());
 app.use(cacheInit)
+app.use(responseTime())
 
 //Middlewares
 app.use(morgan("dev"));

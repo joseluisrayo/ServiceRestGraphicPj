@@ -3,38 +3,96 @@ import config from "./../config";
 import { scripts as consultasql } from "./../database/scripts";
 import jwt from "jsonwebtoken";
 import moment from "moment";
+import { createClient } from "redis";
 
 // const generateAccessToken = () => {
 //   //Default_token: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 //   return jwt.sign("suprema", config.secretkey);
 // };
 
+//AGREGAR CONFIGURACION REDIS
+const clienteRedis = createClient({
+  host: "127.0.0.1",
+  port: 6379,
+});
+
 //CONTROLLER INGRESOS
 const getListdoExpIngresos = async (req, res, next) => {
   try {
     const { fechaini, fechafin } = req.params;
     if (fechaini.length != 0 && fechafin.length != 0) {
-      const result_fecha = validarFecha(fechaini, fechafin);
-      const db = await new Sybase(
-        config.host,
-        config.port,
-        config.dbname,
-        config.username,
-        config.password
-      );
-
-      await db.connect(function (error) {
+      clienteRedis.get("getListdoExpIngresos", async (error, reply) => {
         if (error) return console.log(error);
-        console.log(consultasql.ListadoExpIngresos(result_fecha));
-        db.query(
-          consultasql.ListadoExpIngresos(result_fecha),
-          function (error, data) {
-            if (error) console.log(error);
-            res.status(200).json(data);
-            db.disconnect();
-          }
+        //validamos si existe en redis
+        if (reply) {
+          return res.json(JSON.stringify(reply));
+        }
+        //funcion cuando no exista en redis
+        const result_fecha = validarFecha(fechaini, fechafin);
+        const db = await new Sybase(
+          config.host,
+          config.port,
+          config.dbname,
+          config.username,
+          config.password
         );
+
+        await db.connect(function (error) {
+          if (error) return console.log(error);
+          // console.log(consultasql.ListadoExpIngresos(result_fecha));
+          db.query(
+            consultasql.ListadoExpIngresos(result_fecha),
+            function (error, data) {
+              if (error) console.log(error);
+              //agregar data a redis
+              clienteRedis.set(
+                "getListdoExpIngresos",
+                JSON.stringify(data),
+                (error, reply) => {
+                  if (error) console.log(error);
+                  if (!error) client.expire( 'clima',  10) // El registro con id = 'clima' se autodestruirá en 3600 segundos (1 hora)
+                  //respont for service
+                  res.status(200).json(data);
+                  db.disconnect();
+                }
+              );
+            }
+          );
+        });
+
       });
+
+      // const result_fecha = validarFecha(fechaini, fechafin);
+      // const db = await new Sybase(
+      //   config.host,
+      //   config.port,
+      //   config.dbname,
+      //   config.username,
+      //   config.password
+      // );
+
+      // await db.connect(function (error) {
+      //   if (error) return console.log(error);
+      //   // console.log(consultasql.ListadoExpIngresos(result_fecha));
+      //   db.query(
+      //     consultasql.ListadoExpIngresos(result_fecha),
+      //     function (error, data) {
+      //       if (error) console.log(error);
+      //       //agregar data a redis
+      //       clienteRedis.set(
+      //         "getListdoExpIngresos",
+      //         JSON.stringify(data),
+      //         (error, reply) => {
+      //           if (error) console.log(error);
+      //           console.log(reply);
+      //           //respont for service
+      //           res.status(200).json(data);
+      //           db.disconnect();
+      //         }
+      //       );
+      //     }
+      //   );
+      // });
     } else {
       res.status(500).send("No se aceptan parametros vacios.");
     }
@@ -58,9 +116,9 @@ const getListadoIngresoMensualxTipRecurso = async (req, res, next) => {
 
       await db.connect(function (error) {
         if (error) return console.log(error);
-        console.log(
-          consultasql.ListadoIngresoMensualxTipRecurso(instancia, result_fecha)
-        );
+        // console.log(
+        //   consultasql.ListadoIngresoMensualxTipRecurso(instancia, result_fecha)
+        // );
         db.query(
           consultasql.ListadoIngresoMensualxTipRecurso(instancia, result_fecha),
           function (error, data) {
@@ -93,9 +151,9 @@ const getListadoIngresoMensualxCorteProced = async (req, res, next) => {
 
       await db.connect(function (error) {
         if (error) return console.log(error);
-        console.log(
-          consultasql.ListadoIngresoMensualxCorteProced(instancia, result_fecha)
-        );
+        // console.log(
+        //   consultasql.ListadoIngresoMensualxCorteProced(instancia, result_fecha)
+        // );
         db.query(
           consultasql.ListadoIngresoMensualxCorteProced(
             instancia,
@@ -132,7 +190,7 @@ const getListadoProgramaciones = async (req, res, next) => {
 
       await db.connect(function (error) {
         if (error) return console.log(error);
-        console.log(consultasql.ListadoProgramaciones(result_fecha));
+        // console.log(consultasql.ListadoProgramaciones(result_fecha));
         db.query(
           consultasql.ListadoProgramaciones(result_fecha),
           function (error, data) {
@@ -165,9 +223,9 @@ const getListadoProgramacionesPonente = async (req, res, next) => {
 
       await db.connect(function (error) {
         if (error) return console.log(error);
-        console.log(
-          consultasql.ListadoProgramacionesPonente(instancia, result_fecha)
-        );
+        // console.log(
+        //   consultasql.ListadoProgramacionesPonente(instancia, result_fecha)
+        // );
         db.query(
           consultasql.ListadoProgramacionesPonente(instancia, result_fecha),
           function (error, data) {
@@ -200,12 +258,12 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
 
       await db.connect(function (error) {
         if (error) return console.log(error);
-        console.log(
-          consultasql.ListadoProgramacionesFirmadoPonente(
-            instancia,
-            result_fecha
-          )
-        );
+        // console.log(
+        //   consultasql.ListadoProgramacionesFirmadoPonente(
+        //     instancia,
+        //     result_fecha
+        //   )
+        // );
         db.query(
           consultasql.ListadoProgramacionesFirmadoPonente(
             instancia,
@@ -242,7 +300,7 @@ const getListadoEscritosAnual = async (req, res, next) => {
 
       await db.connect(function (error) {
         if (error) return console.log(error);
-        console.log(consultasql.ListadoEscritosAnual(result_fecha));
+        // console.log(consultasql.ListadoEscritosAnual(result_fecha));
         db.query(
           consultasql.ListadoEscritosAnual(result_fecha),
           function (error, data) {
@@ -275,7 +333,7 @@ const getListaTipoEscritos = async (req, res, next) => {
 
       await db.connect(function (error) {
         if (error) return console.log(error);
-        console.log(consultasql.ListaTipoEscritos(instancia, result_fecha));
+        // console.log(consultasql.ListaTipoEscritos(instancia, result_fecha));
         db.query(
           consultasql.ListaTipoEscritos(instancia, result_fecha),
           function (error, data) {
@@ -308,7 +366,7 @@ const getListadoEscritosPendienteAtendido = async (req, res, next) => {
 
       await db.connect(function (error) {
         if (error) return console.log(error);
-        console.log(consultasql.ListadoEscritosPendienteAtendido(result_fecha));
+        // console.log(consultasql.ListadoEscritosPendienteAtendido(result_fecha));
         db.query(
           consultasql.ListadoEscritosPendienteAtendido(result_fecha),
           function (error, data) {
