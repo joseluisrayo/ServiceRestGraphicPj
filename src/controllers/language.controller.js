@@ -30,7 +30,6 @@ const getListdoExpIngresos = async (req, res, next) => {
           consultasql.ListadoExpIngresos(result_fecha),
           function (error, data) {
             if (error) console.log(error);
-            //agregar data a redis
             res.status(200).json(data);
             db.disconnect();
           }
