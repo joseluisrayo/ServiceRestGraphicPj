@@ -21,6 +21,6 @@ En la cabecera de la peticion http escribir los header:
 headers: 
     authorization : [agregar aqui token]
 
-4. Configuracion con redis
-    host: localhost
+4. instalar redis de la carpeta instaladores
+    host: '127.0.0.1'
     port: 6379
