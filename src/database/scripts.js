@@ -161,7 +161,7 @@ const ListadoProgramaciones = (fecha) => `
 
 const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
 SELECT
-  z.c_usuario_vocal    AS "00_Ponente" ,
+RTRIM(z.c_usuario_vocal) AS "00_Ponente" ,
   count(CASE WHEN z.estadop + z.estadom >= 1 OR z.num_tipo_audiencia = 5 THEN 1  END) AS "02_Resuelto",
   count(CASE WHEN  z.estadop + z.estadom = 0 AND z.num_tipo_audiencia <> 5 THEN 1  END) AS "04_Pendiente", 
   z.anno AS '03_anno', 
