@@ -1,17 +1,17 @@
 import ExpressExpeditious from "express-expeditious";
 import expeditiousEngineRedis from "expeditious-engine-redis";
+import config from "./../config";
 
 const defaultOptions = ({
     namespace: 'expresscache',
-    // defaultTtl: '1 minute',
-    defaultTtl: 60 * 1000,
-    statusCodeExpires: {
-        404: '5 minutes',
-        500: 0 // 1 minute in miliseconds
-    },
+    defaultTtl: '1 minute', // 60 * 1000 minute in miliseconds
+    // statusCodeExpires: {
+    //     404: '5 minutes',
+    //     500: 0 // 1 minute in miliseconds
+    // },
     engine: expeditiousEngineRedis({
-        host: '127.0.0.1',
-        port: 6379
+        host: config.redis_host,
+        port: config.redis_port
     })
 })
 
