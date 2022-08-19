@@ -55,7 +55,7 @@ router.get(
 );
 
 router.get(
-    "/api/getListadoEscritosPendienteAtendido/:fechaini/:fechafin",
+    "/api/getListadoEscritosPendienteAtendido/:instancia/:fechaini/:fechafin",
     languageController.validarAccessToken,
     languageController.getListadoEscritosPendienteAtendido
 );

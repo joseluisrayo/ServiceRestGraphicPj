@@ -44,5 +44,5 @@ authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy
 
 
 ### GET getListadoEscritosPendienteAtendido
-GET http://localhost:4000/api/getListadoEscritosPendienteAtendido/2017-01-01/2022-08-10
+GET http://localhost:4000/api/getListadoEscritosPendienteAtendido/101/2017-01-01/2022-08-10
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I

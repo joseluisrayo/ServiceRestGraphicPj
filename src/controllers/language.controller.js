@@ -295,8 +295,8 @@ const getListaTipoEscritos = async (req, res, next) => {
 
 const getListadoEscritosPendienteAtendido = async (req, res, next) => {
   try {
-    const { fechaini, fechafin } = req.params;
-    if (fechaini.length != 0 && fechafin.length != 0) {
+    const { instancia, fechaini, fechafin } = req.params;
+    if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
       const db = await new Sybase(
         config.host,
@@ -308,9 +308,9 @@ const getListadoEscritosPendienteAtendido = async (req, res, next) => {
 
       await db.connect(function (error) {
         if (error) return console.log(error);
-        // console.log(consultasql.ListadoEscritosPendienteAtendido(result_fecha));
+        // console.log(consultasql.ListadoEscritosPendienteAtendido(instancia, result_fecha));
         db.query(
-          consultasql.ListadoEscritosPendienteAtendido(result_fecha),
+          consultasql.ListadoEscritosPendienteAtendido(instancia, result_fecha),
           function (error, data) {
             if (error) console.log(error);
             res.status(200).json(data);
