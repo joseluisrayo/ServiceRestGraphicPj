@@ -202,11 +202,7 @@ const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
     convert(DATE, x.f_firma)  >= convert(DATE, y.f_programacion)  AND
     x.l_firmado = 'S' AND
     x.l_indPonente = 'S' AND x.l_activo = 'S' )  ) AS firma    
-    FROM
-    ( SELECT      
-    cg.n_unico ,
-    cg.n_incidente ,
-    cg.c_usuario_vocal      ,  
+    FROM( SELECT cg.n_unico ,cg.n_incidente , cg.c_usuario_vocal,  
     ie.n_exp_sala n_num_recurso,
     ie.n_ano_sala n_ano_recurso ,
     mim.x_desc_motivo_ingreso nom_recurso ,
