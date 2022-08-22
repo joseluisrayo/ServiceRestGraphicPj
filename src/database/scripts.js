@@ -188,10 +188,10 @@ const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
     b.c_usuario    = y.c_usuario_vocal AND
     b.l_firmado = 'S' AND
     b.l_indPonente = 'S' AND b.l_activo = 'S' AND
-                b.f_firma = ( SELECT max(x.f_firma)
-        FROM ResolucionEditorFirma x
-        JOIN resolucion_editor r ON
-        r.n_unico = x.n_unico AND
+    b.f_firma = ( SELECT max(x.f_firma)
+    FROM ResolucionEditorFirma x
+    JOIN resolucion_editor r ON
+    r.n_unico = x.n_unico AND
     r.n_incidente = x.n_incidente AND
     r.f_descargo = x.f_descargo AND
     IsNull(r.l_utilizado, 'N') <> 'A' AND
@@ -208,8 +208,8 @@ const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
     cg.n_incidente ,
     cg.c_usuario_vocal      ,  
     ie.n_exp_sala n_num_recurso,
-        ie.n_ano_sala n_ano_recurso ,
-        mim.x_desc_motivo_ingreso nom_recurso ,
+    ie.n_ano_sala n_ano_recurso ,
+    mim.x_desc_motivo_ingreso nom_recurso ,
     cg.f_programacion ,
     year(cg.f_programacion) anno,
     month(cg.f_programacion)  mes,
@@ -219,13 +219,13 @@ const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
     ON e.n_unico=ie.n_unico
     AND e.n_incidente=ie.n_incidente
     JOIN conformacion_grupo   cg noholdlock
-        ON ie.c_distrito = cg.c_distrito AND ie.c_provincia = cg.c_provincia
-                AND ie.c_instancia = cg.c_instancia AND ie.n_unico = cg.n_unico
-                AND ie.n_incidente = cg.n_incidente AND ie.f_ingreso = cg.f_ingreso
-                AND cg.l_ultimo = 'S' AND cg.l_ultimo_audiencia = 'S'
-                AND cg.l_reprogramado = 'N' AND cg.l_no_vista = 'N' AND cg.l_publicado = 'S'
-                AND cg.c_usuario_vocal IS NOT NULL    
-        JOIN motivo_ingreso_maestro mim noholdlock ON mim.c_motivo_ingreso = ie.c_motivo_ingreso      
+    ON ie.c_distrito = cg.c_distrito AND ie.c_provincia = cg.c_provincia
+    AND ie.c_instancia = cg.c_instancia AND ie.n_unico = cg.n_unico
+    AND ie.n_incidente = cg.n_incidente AND ie.f_ingreso = cg.f_ingreso
+    AND cg.l_ultimo = 'S' AND cg.l_ultimo_audiencia = 'S'
+    AND cg.l_reprogramado = 'N' AND cg.l_no_vista = 'N' AND cg.l_publicado = 'S'
+    AND cg.c_usuario_vocal IS NOT NULL    
+    JOIN motivo_ingreso_maestro mim noholdlock ON mim.c_motivo_ingreso = ie.c_motivo_ingreso      
     WHERE ie.c_distrito = '50'
     AND ie.c_provincia = '01'
     AND ie.c_instancia = '${n_sala}'    
