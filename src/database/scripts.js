@@ -181,7 +181,7 @@ const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
     y.n_num_recurso, y.n_ano_recurso, y.nom_recurso ,y.f_programacion ,
     y.anno ,
     y.mes ,
-    (SELECT convert(DATE, b.f_firma)  
+    (SELECT DISTINCT convert(DATE, b.f_firma)  
     FROM ResolucionEditorFirma b
     WHERE b.n_unico = y.n_unico AND
     b.n_incidente = y.n_incidente AND
