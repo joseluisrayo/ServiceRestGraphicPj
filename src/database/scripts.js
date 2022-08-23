@@ -181,14 +181,14 @@ const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
     y.n_num_recurso, y.n_ano_recurso, y.nom_recurso ,y.f_programacion ,
     y.anno ,
     y.mes ,
-    (SELECT convert(DATE, b.f_firma)  
+    (SELECT DISTINCT convert(DATE, b.f_firma)  
     FROM ResolucionEditorFirma b
     WHERE b.n_unico = y.n_unico AND
     b.n_incidente = y.n_incidente AND
     b.c_usuario    = y.c_usuario_vocal AND
     b.l_firmado = 'S' AND
     b.l_indPonente = 'S' AND b.l_activo = 'S' AND
-                b.f_firma = ( SELECT max(x.f_firma)
+                b.f_firma in ( SELECT max(x.f_firma)
         FROM ResolucionEditorFirma x
         JOIN resolucion_editor r ON
             r.n_unico = x.n_unico AND
