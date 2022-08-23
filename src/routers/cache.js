@@ -1,6 +1,6 @@
 import ExpressExpeditious from "express-expeditious";
 import expeditiousEngineRedis from "expeditious-engine-redis";
-import config from "./../config";
+import config from "./../config.js";
 
 const defaultOptions = ({
     namespace: 'expresscache',
@@ -16,5 +16,5 @@ const defaultOptions = ({
 })
 
 const cacheInit = ExpressExpeditious(defaultOptions);
-
-module.exports = { cacheInit };
+export default cacheInit;
+// module.exports = cacheInit;

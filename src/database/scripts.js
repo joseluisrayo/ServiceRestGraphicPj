@@ -27,7 +27,7 @@ const ListadoExpIngresos = (fecha) => `
 `;
 
 const ListadoIngresoMensualxTipRecurso = (n_sala, fecha) => `
-    SELECT RTRIM(mim.c_motivo_ingreso + ' ' + mim.x_desc_motivo_ingreso) AS '00_Recurso' ,
+    SELECT RTRIM(mim.x_desc_motivo_ingreso) AS '00_Recurso' ,
     count(CASE datepart(month,ie.f_ingreso) WHEN 1 THEN ie.f_ingreso END) AS "01_Enero",
     count(CASE datepart(month,ie.f_ingreso) WHEN 2 THEN ie.f_ingreso END) AS "02_Febrero",
     count(CASE datepart(month,ie.f_ingreso) WHEN 3 THEN ie.f_ingreso END) AS "03_Marzo",

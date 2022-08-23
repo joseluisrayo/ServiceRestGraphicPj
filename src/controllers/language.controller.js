@@ -1,8 +1,10 @@
-import Sybase from "sybase";
-import config from "./../config";
-import { scripts as consultasql } from "./../database/scripts";
+// import Sybase from "sybase";
+import SybasePromised from "sybase-promised";
+import config from "./../config.js";
+import { scripts as consultasql } from "./../database/scripts.js";
 import jwt from "jsonwebtoken";
 import moment from "moment";
+
 
 // const generateAccessToken = () => {
 //   //Default_token: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
@@ -15,26 +17,26 @@ const getListdoExpIngresos = async (req, res, next) => {
     const { fechaini, fechafin } = req.params;
     if (fechaini.length != 0 && fechafin.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
-      const db = await new Sybase(
-        config.host,
-        config.port,
-        config.dbname,
-        config.username,
-        config.password
-      );
-
-      await db.connect(function (error) {
-        if (error) return console.log(error);
-        // console.log(consultasql.ListadoExpIngresos(result_fecha));
-        db.query(
-          consultasql.ListadoExpIngresos(result_fecha),
-          function (error, data) {
-            if (error) console.log(error);
-            res.status(200).json(data);
-            db.disconnect();
-          }
-        );
+      const querys = await consultasql.ListadoExpIngresos(result_fecha);
+      const db = new SybasePromised({
+        host: config.host,
+        port: config.port,
+        dbname: config.dbname,
+        username: config.username,
+        password: config.password,
       });
+
+      await db.connect((error)=>{
+        if (error) {       
+          res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
+          return console.log("Error connection: getListdoExpIngresos");
+        }
+      });
+
+      const data = await db.query(querys);
+      res.status(200).json(data);
+      db.disconnect();
+
     } else {
       res.status(500).send("No se aceptan parametros vacios.");
     }
@@ -48,28 +50,26 @@ const getListadoIngresoMensualxTipRecurso = async (req, res, next) => {
     const { instancia, fechaini, fechafin } = req.params;
     if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
-      const db = await new Sybase(
-        config.host,
-        config.port,
-        config.dbname,
-        config.username,
-        config.password
-      );
-
-      await db.connect(function (error) {
-        if (error) return console.log(error);
-        // console.log(
-        //   consultasql.ListadoIngresoMensualxTipRecurso(instancia, result_fecha)
-        // );
-        db.query(
-          consultasql.ListadoIngresoMensualxTipRecurso(instancia, result_fecha),
-          function (error, data) {
-            if (error) console.log(error);
-            res.status(200).json(data);
-            db.disconnect();
-          }
-        );
+      const querys = await consultasql.ListadoIngresoMensualxTipRecurso(instancia, result_fecha);
+      const db = new SybasePromised({
+        host: config.host,
+        port: config.port,
+        dbname: config.dbname,
+        username: config.username,
+        password: config.password,
       });
+
+      await db.connect((error)=>{
+        if (error) {       
+          res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
+          return console.log("Error connection: getListadoIngresoMensualxTipRecurso");
+        }
+      });
+
+      const data = await db.query(querys);
+      res.status(200).json(data);
+      db.disconnect();
+
     } else {
       res.status(500).send("No se aceptan parametros vacios.");
     }
@@ -83,31 +83,26 @@ const getListadoIngresoMensualxCorteProced = async (req, res, next) => {
     const { instancia, fechaini, fechafin } = req.params;
     if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
-      const db = await new Sybase(
-        config.host,
-        config.port,
-        config.dbname,
-        config.username,
-        config.password
-      );
-
-      await db.connect(function (error) {
-        if (error) return console.log(error);
-        // console.log(
-        //   consultasql.ListadoIngresoMensualxCorteProced(instancia, result_fecha)
-        // );
-        db.query(
-          consultasql.ListadoIngresoMensualxCorteProced(
-            instancia,
-            result_fecha
-          ),
-          function (error, data) {
-            if (error) console.log(error);
-            res.status(200).json(data);
-            db.disconnect();
-          }
-        );
+      const querys = await consultasql.ListadoIngresoMensualxCorteProced(instancia, result_fecha);
+      const db = new SybasePromised({
+        host: config.host,
+        port: config.port,
+        dbname: config.dbname,
+        username: config.username,
+        password: config.password,
       });
+
+      await db.connect((error)=>{
+        if (error) {       
+          res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
+          return console.log("Error connection: getListadoIngresoMensualxCorteProced");
+        }
+      });
+
+      const data = await db.query(querys);
+      res.status(200).json(data);
+      db.disconnect();
+
     } else {
       res.status(500).send("No se aceptan parametros vacios.");
     }
@@ -122,26 +117,26 @@ const getListadoProgramaciones = async (req, res, next) => {
     const { fechaini, fechafin } = req.params;
     if (fechaini.length != 0 && fechafin.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
-      const db = await new Sybase(
-        config.host,
-        config.port,
-        config.dbname,
-        config.username,
-        config.password
-      );
-
-      await db.connect(function (error) {
-        if (error) return console.log(error);
-        // console.log(consultasql.ListadoProgramaciones(result_fecha));
-        db.query(
-          consultasql.ListadoProgramaciones(result_fecha),
-          function (error, data) {
-            if (error) console.log(error);
-            res.status(200).json(data);
-            db.disconnect();
-          }
-        );
+      const querys = await consultasql.ListadoProgramaciones(result_fecha);
+      const db = new SybasePromised({
+        host: config.host,
+        port: config.port,
+        dbname: config.dbname,
+        username: config.username,
+        password: config.password,
       });
+
+      await db.connect((error)=>{
+        if (error) {       
+          res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
+          return console.log("Error connection: getListadoProgramaciones");
+        }
+      });
+
+      const data = await db.query(querys);
+      res.status(200).json(data);
+      db.disconnect();
+
     } else {
       res.status(500).send("No se aceptan parametros vacios.");
     }
@@ -155,28 +150,26 @@ const getListadoProgramacionesPonente = async (req, res, next) => {
     const { instancia, fechaini, fechafin } = req.params;
     if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
-      const db = await new Sybase(
-        config.host,
-        config.port,
-        config.dbname,
-        config.username,
-        config.password
-      );
-
-      await db.connect(function (error) {
-        if (error) return console.log(error);
-        // console.log(
-        //   consultasql.ListadoProgramacionesPonente(instancia, result_fecha)
-        // );
-        db.query(
-          consultasql.ListadoProgramacionesPonente(instancia, result_fecha),
-          function (error, data) {
-            if (error) console.log(error);
-            res.status(200).json(data);
-            db.disconnect();
-          }
-        );
+      const querys = await consultasql.ListadoProgramacionesPonente(instancia, result_fecha);
+      const db = new SybasePromised({
+        host: config.host,
+        port: config.port,
+        dbname: config.dbname,
+        username: config.username,
+        password: config.password,
       });
+
+      await db.connect((error)=>{
+        if (error) {       
+          res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
+          return console.log("Error connection: getListadoProgramacionesPonente");
+        }
+      });
+
+      const data = await db.query(querys);
+      res.status(200).json(data);
+      db.disconnect();
+
     } else {
       res.status(500).send("No se aceptan parametros vacios.");
     }
@@ -190,34 +183,26 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
     const { instancia, fechaini, fechafin } = req.params;
     if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
-      const db = await new Sybase(
-        config.host,
-        config.port,
-        config.dbname,
-        config.username,
-        config.password
-      );
-
-      await db.connect(function (error) {
-        if (error) return console.log(error);
-        // console.log(
-        //   consultasql.ListadoProgramacionesFirmadoPonente(
-        //     instancia,
-        //     result_fecha
-        //   )
-        // );
-        db.query(
-          consultasql.ListadoProgramacionesFirmadoPonente(
-            instancia,
-            result_fecha
-          ),
-          function (error, data) {
-            if (error) console.log(error);
-            res.status(200).json(data);
-            db.disconnect();
-          }
-        );
+      const querys = await consultasql.ListadoProgramacionesFirmadoPonente(instancia, result_fecha);
+      const db = new SybasePromised({
+        host: config.host,
+        port: config.port,
+        dbname: config.dbname,
+        username: config.username,
+        password: config.password,
       });
+
+      await db.connect((error)=>{
+        if (error) {       
+          res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
+          return console.log("Error connection: getListadoProgramacionesFirmadoPonente");
+        }
+      });
+
+      const data = await db.query(querys);
+      res.status(200).json(data);
+      db.disconnect();
+
     } else {
       res.status(500).send("No se aceptan parametros vacios.");
     }
@@ -232,26 +217,26 @@ const getListadoEscritosAnual = async (req, res, next) => {
     const { fechaini, fechafin } = req.params;
     if (fechaini.length != 0 && fechafin.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
-      const db = await new Sybase(
-        config.host,
-        config.port,
-        config.dbname,
-        config.username,
-        config.password
-      );
-
-      await db.connect(function (error) {
-        if (error) return console.log(error);
-        // console.log(consultasql.ListadoEscritosAnual(result_fecha));
-        db.query(
-          consultasql.ListadoEscritosAnual(result_fecha),
-          function (error, data) {
-            if (error) console.log(error);
-            res.status(200).json(data);
-            db.disconnect();
-          }
-        );
+      const querys = await consultasql.ListadoEscritosAnual(result_fecha);
+      const db = new SybasePromised({
+        host: config.host,
+        port: config.port,
+        dbname: config.dbname,
+        username: config.username,
+        password: config.password,
       });
+
+      await db.connect((error)=>{
+        if (error) {       
+          res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
+          return console.log("Error connection: getListadoEscritosAnual");
+        }
+      });
+
+      const data = await db.query(querys);
+      res.status(200).json(data);
+      db.disconnect();
+
     } else {
       res.status(500).send("No se aceptan parametros vacios.");
     }
@@ -265,26 +250,26 @@ const getListaTipoEscritos = async (req, res, next) => {
     const { instancia, fechaini, fechafin } = req.params;
     if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
-      const db = await new Sybase(
-        config.host,
-        config.port,
-        config.dbname,
-        config.username,
-        config.password
-      );
-
-      await db.connect(function (error) {
-        if (error) return console.log(error);
-        // console.log(consultasql.ListaTipoEscritos(instancia, result_fecha));
-        db.query(
-          consultasql.ListaTipoEscritos(instancia, result_fecha),
-          function (error, data) {
-            if (error) console.log(error);
-            res.status(200).json(data);
-            db.disconnect();
-          }
-        );
+      const querys = await consultasql.ListaTipoEscritos(instancia, result_fecha);
+      const db = new SybasePromised({
+        host: config.host,
+        port: config.port,
+        dbname: config.dbname,
+        username: config.username,
+        password: config.password,
       });
+
+      await db.connect((error)=>{
+        if (error) {       
+          res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
+          return console.log("Error connection: getListaTipoEscritos");
+        }
+      });
+
+      const data = await db.query(querys);
+      res.status(200).json(data);
+      db.disconnect();
+
     } else {
       res.status(500).send("No se aceptan parametros vacios.");
     }
@@ -298,26 +283,26 @@ const getListadoEscritosPendienteAtendido = async (req, res, next) => {
     const { instancia, fechaini, fechafin } = req.params;
     if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
-      const db = await new Sybase(
-        config.host,
-        config.port,
-        config.dbname,
-        config.username,
-        config.password
-      );
-
-      await db.connect(function (error) {
-        if (error) return console.log(error);
-        // console.log(consultasql.ListadoEscritosPendienteAtendido(instancia, result_fecha));
-        db.query(
-          consultasql.ListadoEscritosPendienteAtendido(instancia, result_fecha),
-          function (error, data) {
-            if (error) console.log(error);
-            res.status(200).json(data);
-            db.disconnect();
-          }
-        );
+      const querys = await consultasql.ListadoEscritosPendienteAtendido(instancia, result_fecha);
+      const db = new SybasePromised({
+        host: config.host,
+        port: config.port,
+        dbname: config.dbname,
+        username: config.username,
+        password: config.password,
       });
+
+      await db.connect((error)=>{
+        if (error) {       
+          res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
+          return console.log("Error connection: getListadoEscritosPendienteAtendido");
+        }
+      });
+
+      const data = await db.query(querys);
+      res.status(200).json(data);
+      db.disconnect();
+
     } else {
       res.status(500).send("No se aceptan parametros vacios.");
     }
