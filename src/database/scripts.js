@@ -56,7 +56,7 @@ const ListadoIngresoMensualxTipRecurso = (n_sala, fecha) => `
 `;
 
 const ListadoIngresoMensualxCorteProced = (n_sala, fecha) => `
-    SELECT isnull(dj.x_nom_distrito,'SIN ASIGNACION') AS '00_CorteProcedencia' ,
+    SELECT isnull(dj.x_nom_distrito,'SIN ASIGNACION') AS '00_Corte Procedencia' ,
     count(CASE datepart(month,ie.f_ingreso) WHEN 1 THEN ie.f_ingreso END) AS "01_Enero",
     count(CASE datepart(month,ie.f_ingreso) WHEN 2 THEN ie.f_ingreso END) AS "02_Febrero",
     count(CASE datepart(month,ie.f_ingreso) WHEN 3 THEN ie.f_ingreso END) AS "03_Marzo",
@@ -241,9 +241,9 @@ const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
 const ListadoEscritosAnual = (fecha) => `
     SELECT 
     year(e.f_ingreso_acto) as '00_anno',  
-    count(CASE WHEN e.c_instancia  = '101' THEN e.n_unico END) AS "101_SPP",			 
-    count(CASE WHEN e.c_instancia  = '102' THEN e.n_unico END) AS  '102_SPT', 		      
-    count(CASE WHEN e.c_instancia  = '201' THEN e.n_unico END) AS  '201_SCP',
+    count(CASE WHEN e.c_instancia  = '101' THEN e.n_unico END) AS '101_SPP',			 
+    count(CASE WHEN e.c_instancia  = '102' THEN e.n_unico END) AS '102_SPT', 		      
+    count(CASE WHEN e.c_instancia  = '201' THEN e.n_unico END) AS '201_SCP',
     count(CASE WHEN e.c_instancia  = '202' THEN e.n_unico END) AS '202_SCT',
     count(CASE WHEN e.c_instancia  = '203' THEN e.n_unico END) AS '203_SDCP' ,
     count(CASE WHEN e.c_instancia  = '204' THEN e.n_unico END) AS '204_1SDCT' ,
@@ -271,7 +271,7 @@ const ListadoEscritosAnual = (fecha) => `
 
 const ListaTipoEscritos = (n_sala, fecha) => `
     SELECT 
-    a.x_desc_acto_procesal AS '00_TIPO',
+    a.x_desc_acto_procesal AS '00_Tipo',
     count(CASE datepart(month,e.f_ingreso_acto) WHEN 1 THEN e.f_ingreso_acto END) AS "01_Enero",
     count(CASE datepart(month,e.f_ingreso_acto) WHEN 2 THEN e.f_ingreso_acto END) AS "02_Febrero",
     count(CASE datepart(month,e.f_ingreso_acto) WHEN 3 THEN e.f_ingreso_acto END) AS "03_Marzo",
@@ -307,7 +307,7 @@ const ListadoEscritosPendienteAtendido = (n_sala, fecha) => `
     (CASE WHEN e.f_respuesta IS NULL THEN 'PENDIENTES'  
     WHEN e.f_respuesta IS NOT NULL THEN 'ATENDIDOS' 
     WHEN isnull(e.l_estado,'X') = 'A' THEN 'ANULADOS'
-    END ) AS  '00_x_estado',
+    END ) AS  '00_Estados',
     count(CASE datepart(month,e.f_ingreso_acto) WHEN 1 THEN e.f_ingreso_acto END) AS "01_Enero",
     count(CASE datepart(month,e.f_ingreso_acto) WHEN 2 THEN e.f_ingreso_acto END) AS "02_Febrero",
     count(CASE datepart(month,e.f_ingreso_acto) WHEN 3 THEN e.f_ingreso_acto END) AS "03_Marzo",
