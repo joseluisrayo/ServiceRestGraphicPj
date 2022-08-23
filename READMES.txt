@@ -1,9 +1,9 @@
 1. Requerimientos:
     - instalar nodejs
-    - instalar redis desde la carpeta raiz del proyecto, redis se iniciar justo con windows.
+    - instalar redis desde la carpeta raiz del proyecto, redis se inicia justo con windows.
     - instalar Nginx, descomprimir .rar en el disco C://, buscar el archivo nginx.exe dar click para iniciar.
     - instalar pm2 con comando (debe tener nodejs y acceso a internet): npm install pm2 -g 
-    - instalar pm2 sin internet ingresar a la carpeta de instaldores del proyecto con cmd y ejecutar: pm2 install pm2-2.9.1.tgz
+    - instalar pm2 sin internet ingresar a la carpeta de instaldores del proyecto con cmd y ejecutar: pm2 install pm2-2.9.1.tgz -g
 
 2. Despliegue comandos:
     - npm run dev => comando para correr el proyecto en modo desarrollo
@@ -38,5 +38,5 @@ NOTA: Para usar pm2 y nginx el proyecto debe estart desplegado en produccion
     - Para iniciar dar click en el nginx.exe
         nginx -s stop	    Rapid shutdown
         nginx -s quit	    Graceful shutdown
-        nginx -s reload	    Changing configuration, starting new worker processes with a new configuration, graceful shutdown of old worker processes
+        nginx -s reload	    Changing configuration, starting new worker processes with a new configuration.
         nginx -s reopen	    Reopening log files
