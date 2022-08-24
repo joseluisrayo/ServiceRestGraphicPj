@@ -41,6 +41,12 @@ router.get(
     languageController.getListadoProgramacionesFirmadoPonente
 );
 
+router.get(
+    "/api/getListadoProgramacionesPonenteRecurso/:instancia/:fechaini/:fechafin/:ponente",
+    languageController.validarAccessToken,
+    languageController.getListadoProgramacionesPonenteRecurso
+);
+
 //ROUTER ESCRITOS
 router.get(
     "/api/getListadoEscritosAnual/:fechaini/:fechafin",

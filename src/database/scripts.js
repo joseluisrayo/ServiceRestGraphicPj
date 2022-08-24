@@ -237,6 +237,86 @@ const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
     GROUP BY  z.c_usuario_vocal  
 `;
 
+const ListadoProgramacionesPonenteRecurso = (n_sala, fecha, ponente) => `
+    SELECT  
+        year(cg.f_programacion) AS '00_Año',
+        s.x_descripcion AS '01_Mes',
+        RTRIM(cg.c_usuario_vocal) AS '02_Ponente',
+        RTRIM(mim.x_desc_motivo_ingreso) AS '03_Recurso',  
+        ie.n_exp_sala AS '04_NumRecurso',
+        ie.n_ano_sala AS '05_AñoRecurso' ,    
+        CONVERT(varchar(10), ie.f_ingreso, 103) AS '06_FechaIngreso',  
+        RTRIM(em.x_desc_estado) AS '07_EstadoExp',
+        CONVERT(varchar(10), cg.f_programacion, 103) AS '08_FechaProgramacion',
+        pao.x_descripcion AS '09_TipoAudiencia',
+        datediff( dd, cg.f_programacion, getdate() ) AS '10_DiasPendiente',
+        ISNULL (m.des_accion, '----------') AS '11_Accion',
+        ISNULL (CONVERT(varchar(10), a.fec_envio_detalle, 103), '----------') AS '12_FechaEnvio',
+        ISNULL (CONVERT(varchar(10), a.fec_recepcion_detalle, 103), '----------') AS '13_FechaRecepcion', 
+        ISNULL (a.ano_cargo, '----------') AS '14_AñoCargo',
+        ISNULL(CONVERT (VARCHAR(100), a.num_cargo), '----------')  AS '15_NumCargo'
+    FROM instancia_expediente ie (index idx_inst_exp_011)  noholdlock
+    JOIN expediente e noholdlock
+    ON e.n_unico = ie.n_unico AND
+    e.n_incidente = ie.n_incidente
+    JOIN conformacion_grupo   cg noholdlock
+            ON ie.c_distrito = cg.c_distrito AND ie.c_provincia = cg.c_provincia
+                    AND ie.c_instancia = cg.c_instancia AND ie.n_unico = cg.n_unico
+                    AND ie.n_incidente = cg.n_incidente AND ie.f_ingreso = cg.f_ingreso
+                    AND cg.l_ultimo = 'S' AND cg.l_ultimo_audiencia = 'S'
+                    AND cg.l_reprogramado = 'N' AND cg.l_no_vista = 'N' AND cg.l_publicado = 'S'
+                    AND cg.c_usuario_vocal IS NOT NULL
+            JOIN grupo_programacion gp noholdlock ON
+        gp.c_programacion = cg.c_programacion AND
+        gp.n_grupo = cg.n_grupo  AND
+        gp.n_secuencia = cg.n_secuencia    
+    JOIN programacion_instancia prg noholdlock ON
+    prg.c_programacion = gp.c_programacion
+    LEFT JOIN cargo_detalle a (INDEX idx_cargo_detalle_07) noholdlock  
+    ON a.n_unico = ie.n_unico AND
+    a.n_incidente = ie.n_incidente AND
+    a.cod_accion = '013' AND
+    a.ind_estado_detalle IN ('E','R') AND
+    a.fec_envio_detalle >= prg.f_registro AND
+    a.fec_envio_detalle = ( SELECT max(fec_envio_detalle) FROM cargo_detalle m (INDEX idx_cargo_detalle_07) Noholdlock
+            WHERE m.n_unico = a.n_unico AND
+                m.n_incidente = a.n_incidente AND
+                m.cod_accion = '013' AND
+                m.ind_estado_detalle IN ('E','R') )
+            LEFT JOIN acciones_maestro m noholdlock  
+    ON a.cod_accion = m.cod_accion
+    JOIN motivo_ingreso_maestro mim noholdlock  
+    ON ie.c_motivo_ingreso = mim.c_motivo_ingreso  
+    JOIN expediente_estado ee noholdlock ON ee.n_unico = ie.n_unico
+    AND ee.n_incidente = ie.n_incidente AND ee.l_ultimo = 'S'
+        JOIN estado_maestro em noholdlock ON em.c_estado = ee.c_estado
+        JOIN meses s ON s.n_mes = month(cg.f_programacion)
+    LEFT JOIN tipo_programa_audiencia_organo pao (INDEX idx_tipo_programa_aud_org_001) NOHOLDLOCK
+    ON pao.num_tipo_audiencia = cg.num_tipo_audiencia
+    AND pao.c_org_jurisd = '01'
+    AND pao.c_especialidad = ie.c_especialidad    
+    WHERE ie.c_distrito = '50'
+        AND ie.c_provincia = '01'
+        AND ie.c_instancia = '101'  
+        AND ie.c_instancia = '${n_sala}'    
+        AND cg.f_programacion BETWEEN ${fecha}
+        AND cg.c_usuario_vocal = '${ponente}' 
+        AND ie.l_ultimo = 'S'
+        AND cg.num_tipo_audiencia <> 5
+        AND ISNULL(e.l_anulado,'N') = 'N'      
+    AND NOT EXISTS(SELECT 1 FROM ResolucionEditorMovimientoDet s noholdlock  
+    WHERE s.c_distrito = a.c_distrito AND
+    s.ano_cargo = a.ano_cargo AND
+    s.num_cargo = a.num_cargo AND
+    s.n_unico  = a.n_unico AND
+    s.n_incidente=a.n_incidente and
+    s.l_activo = 'S')
+    ORDER BY year(cg.f_programacion)  ,
+        month(cg.f_programacion) ,
+        cg.c_usuario_vocal,
+        cg.f_programacion
+`;
+
 //QUERY ESCRITOS
 const ListadoEscritosAnual = (fecha) => `
     SELECT 
@@ -348,6 +428,7 @@ export const scripts = {
     ListadoProgramaciones,
     ListadoProgramacionesPonente,
     ListadoProgramacionesFirmadoPonente,
+    ListadoProgramacionesPonenteRecurso,
     ListadoEscritosAnual,
     ListaTipoEscritos,
     ListadoEscritosPendienteAtendido

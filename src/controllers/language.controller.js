@@ -211,6 +211,39 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
   }
 };
 
+const getListadoProgramacionesPonenteRecurso = async (req, res, next) => {
+  try {
+    const { instancia, fechaini, fechafin, ponente } = req.params;
+    if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0) {
+      const result_fecha = validarFecha(fechaini, fechafin);
+      const querys = await consultasql.ListadoProgramacionesPonenteRecurso(instancia, result_fecha, ponente);
+      const db = new SybasePromised({
+        host: config.host,
+        port: config.port,
+        dbname: config.dbname,
+        username: config.username,
+        password: config.password,
+      });
+
+      await db.connect((error)=>{
+        if (error) {       
+          res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
+          return console.log("Error connection: getListadoProgramacionesFirmadoPonente");
+        }
+      });
+
+      const data = await db.query(querys);
+      res.status(200).json(data);
+      db.disconnect();
+
+    } else {
+      res.status(500).send("No se aceptan parametros vacios.");
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
 //CONTROLLER ESCRITOS
 const getListadoEscritosAnual = async (req, res, next) => {
   try {
@@ -353,6 +386,7 @@ export const methods = {
   getListadoProgramaciones,
   getListadoProgramacionesPonente,
   getListadoProgramacionesFirmadoPonente,
+  getListadoProgramacionesPonenteRecurso,
   getListadoEscritosAnual,
   getListaTipoEscritos,
   getListadoEscritosPendienteAtendido,
