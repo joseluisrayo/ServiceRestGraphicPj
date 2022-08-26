@@ -174,42 +174,14 @@ const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
             count(CASE WHEN z.mes = 10 THEN 1 END) AS "10_Octubre",
             count(CASE WHEN z.mes = 11 THEN 1 END) AS "11_Noviembre",
             count(CASE WHEN z.mes = 12 THEN 1 END) AS "12_Diciembre"  
-    FROM (
-    SELECT  
-    y.c_usuario_vocal,  
-    y.n_unico ,  y.n_incidente ,
-    y.n_num_recurso, y.n_ano_recurso, y.nom_recurso ,y.f_programacion ,
-    y.anno ,
-    y.mes ,
-    (SELECT DISTINCT convert(DATE, b.f_firma)  
-    FROM ResolucionEditorFirma b
-    WHERE b.n_unico = y.n_unico AND
-    b.n_incidente = y.n_incidente AND
-    b.c_usuario    = y.c_usuario_vocal AND
-    b.l_firmado = 'S' AND
-    b.l_indPonente = 'S' AND b.l_activo = 'S' AND
-                b.f_firma in ( SELECT max(x.f_firma)
-        FROM ResolucionEditorFirma x
-        JOIN resolucion_editor r ON
-            r.n_unico = x.n_unico AND
-    r.n_incidente = x.n_incidente AND
-    r.f_descargo = x.f_descargo AND
-    IsNull(r.l_utilizado, 'N') <> 'A' AND
-    IsNull(r.l_ind_sumilla, 'N') <> 'N'
-    WHERE x.n_unico = b.n_unico AND
-    x.n_incidente = b.n_incidente AND
-    x.c_usuario = b.c_usuario AND
-    convert(DATE, x.f_firma)  >= convert(DATE, y.f_programacion)  AND
-    x.l_firmado = 'S' AND
-    x.l_indPonente = 'S' AND x.l_activo = 'S' )  ) AS firma    
-    FROM
+    FROM  
     ( SELECT      
     cg.n_unico ,
     cg.n_incidente ,
     cg.c_usuario_vocal      ,  
     ie.n_exp_sala n_num_recurso,
         ie.n_ano_sala n_ano_recurso ,
-        mim.x_desc_motivo_ingreso nom_recurso ,
+        mim.x_desc_motivo_ingreso nom_recurso , ie.c_especialidad,
     cg.f_programacion ,
     year(cg.f_programacion) anno,
     month(cg.f_programacion)  mes,
@@ -225,15 +197,50 @@ const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
                 AND cg.l_ultimo = 'S' AND cg.l_ultimo_audiencia = 'S'
                 AND cg.l_reprogramado = 'N' AND cg.l_no_vista = 'N' AND cg.l_publicado = 'S'
                 AND cg.c_usuario_vocal IS NOT NULL    
-        JOIN motivo_ingreso_maestro mim noholdlock ON mim.c_motivo_ingreso = ie.c_motivo_ingreso      
+    JOIN grupo_programacion gp noholdlock ON 
+		        gp.c_programacion = cg.c_programacion AND 
+		        gp.n_grupo = cg.n_grupo  AND 
+		        gp.n_secuencia = cg.n_secuencia     
+	JOIN programacion_instancia prg noholdlock ON 
+				prg.c_programacion = gp.c_programacion 
+	LEFT JOIN cargo_detalle a (INDEX idx_cargo_detalle_07) noholdlock  
+				ON a.n_unico		= ie.n_unico AND 
+				   a.n_incidente	= ie.n_incidente AND 
+				   a.cod_accion		= '013' AND 
+				   a.ind_estado_detalle IN ('E','R') AND 
+				   a.fec_envio_detalle >= prg.f_registro AND 
+				   a.fec_envio_detalle = ( SELECT max(fec_envio_detalle) FROM cargo_detalle m (INDEX idx_cargo_detalle_07)	Noholdlock
+		        							WHERE m.n_unico = a.n_unico AND 
+		        							      m.n_incidente = a.n_incidente AND 
+		        							      m.cod_accion		= '013' AND 
+		        							      m.ind_estado_detalle IN ('E','R') )
+    JOIN motivo_ingreso_maestro mim noholdlock ON mim.c_motivo_ingreso = ie.c_motivo_ingreso      
     WHERE ie.c_distrito = '50'
-            AND  ie.c_provincia = '01'
-            AND   ie.c_instancia =  '${n_sala}'    
-    and   cg.f_programacion BETWEEN ${fecha}  
+    AND  ie.c_provincia = '01'
+    AND  ie.c_instancia =  '${n_sala}'    
+    and  cg.f_programacion BETWEEN ${fecha}   
     AND ie.l_ultimo = 'S'
     AND cg.num_tipo_audiencia <> 5
-    AND ISNULL(e.l_anulado,'N') = 'N'  ) y     )  z
-    WHERE z.f_programacion  <  isnull(z.firma , z.f_programacion)  
+    AND ISNULL(e.l_anulado,'N') = 'N'    
+    AND  (( ie.c_especialidad ='PE' AND  NOT EXISTS
+    				 (SELECT 1 FROM ResolucionEditorEnvioEst s noholdlock  
+							WHERE 
+								  s.ano_cargo = a.ano_cargo AND 
+								  s.num_cargo = a.num_cargo AND 
+								  s.n_unico	  = a.n_unico AND 
+								  s.n_incidente=a.n_incidente and 
+								  s.l_activo = 'S') 
+					 ) OR 
+		  ( ie.c_especialidad <> 'PE'  AND  NOT EXISTS
+    				 (SELECT 1 FROM ResolucionEditorMovimientoDet s noholdlock  
+							WHERE s.c_distrito = a.c_distrito AND 
+								  s.ano_cargo = a.ano_cargo AND 
+								  s.num_cargo = a.num_cargo AND 
+								  s.n_unico	  = a.n_unico AND 
+								  s.n_incidente=a.n_incidente and 
+								  s.l_activo = 'S')	  )
+		   )						  		 
+     )  z 
     GROUP BY  z.c_usuario_vocal  
 `;
 
@@ -296,21 +303,31 @@ const ListadoProgramacionesPonenteRecurso = (n_sala, fecha, ponente) => `
     AND pao.c_org_jurisd = '01'
     AND pao.c_especialidad = ie.c_especialidad    
     WHERE ie.c_distrito = '50'
-        AND ie.c_provincia = '01'
-        AND ie.c_instancia = '101'  
+        AND ie.c_provincia = '01' 
         AND ie.c_instancia = '${n_sala}'    
         AND cg.f_programacion BETWEEN ${fecha}
         AND cg.c_usuario_vocal = '${ponente}' 
         AND ie.l_ultimo = 'S'
         AND cg.num_tipo_audiencia <> 5
         AND ISNULL(e.l_anulado,'N') = 'N'      
-    AND NOT EXISTS(SELECT 1 FROM ResolucionEditorMovimientoDet s noholdlock  
-    WHERE s.c_distrito = a.c_distrito AND
-    s.ano_cargo = a.ano_cargo AND
-    s.num_cargo = a.num_cargo AND
-    s.n_unico  = a.n_unico AND
-    s.n_incidente=a.n_incidente and
-    s.l_activo = 'S')
+    AND  (( ie.c_especialidad ='PE' AND  NOT EXISTS
+    				 (SELECT 1 FROM ResolucionEditorEnvioEst s noholdlock  
+							WHERE 
+								  s.ano_cargo = a.ano_cargo AND 
+								  s.num_cargo = a.num_cargo AND 
+								  s.n_unico	  = a.n_unico AND 
+								  s.n_incidente=a.n_incidente and 
+								  s.l_activo = 'S') 
+					 ) OR 
+		  ( ie.c_especialidad <> 'PE'  AND  NOT EXISTS
+    				 (SELECT 1 FROM ResolucionEditorMovimientoDet s noholdlock  
+							WHERE s.c_distrito = a.c_distrito AND 
+								  s.ano_cargo = a.ano_cargo AND 
+								  s.num_cargo = a.num_cargo AND 
+								  s.n_unico	  = a.n_unico AND 
+								  s.n_incidente=a.n_incidente and 
+								  s.l_activo = 'S')	  )
+		   )
     ORDER BY year(cg.f_programacion)  ,
         month(cg.f_programacion) ,
         cg.c_usuario_vocal,
