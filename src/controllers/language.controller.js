@@ -1,10 +1,8 @@
-// import Sybase from "sybase";
 import SybasePromised from "sybase-promised";
 import config from "./../config.js";
 import { scripts as consultasql } from "./../database/scripts.js";
 import jwt from "jsonwebtoken";
 import moment from "moment";
-
 
 // const generateAccessToken = () => {
 //   //Default_token: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
@@ -38,10 +36,12 @@ const getListdoExpIngresos = async (req, res, next) => {
       db.disconnect();
 
     } else {
-      res.status(500).send("No se aceptan parametros vacios.");
+      res.status(400).send("No se aceptan parametros vacios.");
+      console.log("No se aceptan parametros vacios.");
     }
   } catch (error) {
     res.status(500).send(error.message);
+    console.log(error.message);
   }
 };
 
@@ -71,10 +71,12 @@ const getListadoIngresoMensualxTipRecurso = async (req, res, next) => {
       db.disconnect();
 
     } else {
-      res.status(500).send("No se aceptan parametros vacios.");
+      res.status(400).send("No se aceptan parametros vacios.");
+      console.log("No se aceptan parametros vacios.");
     }
   } catch (error) {
     res.status(500).send(error.message);
+    console.log(error.message);
   }
 };
 
@@ -104,10 +106,12 @@ const getListadoIngresoMensualxCorteProced = async (req, res, next) => {
       db.disconnect();
 
     } else {
-      res.status(500).send("No se aceptan parametros vacios.");
+      res.status(400).send("No se aceptan parametros vacios.");
+      console.log("No se aceptan parametros vacios.");
     }
   } catch (error) {
     res.status(500).send(error.message);
+    console.log(error.message);
   }
 };
 
@@ -138,10 +142,12 @@ const getListadoProgramaciones = async (req, res, next) => {
       db.disconnect();
 
     } else {
-      res.status(500).send("No se aceptan parametros vacios.");
+      res.status(400).send("No se aceptan parametros vacios.");
+      console.log("No se aceptan parametros vacios.");
     }
   } catch (error) {
     res.status(500).send(error.message);
+    console.log(error.message);
   }
 };
 
@@ -171,10 +177,12 @@ const getListadoProgramacionesPonente = async (req, res, next) => {
       db.disconnect();
 
     } else {
-      res.status(500).send("No se aceptan parametros vacios.");
+      res.status(400).send("No se aceptan parametros vacios.");
+      console.log("No se aceptan parametros vacios.");
     }
   } catch (error) {
     res.status(500).send(error.message);
+    console.log(error.message);
   }
 };
 
@@ -204,10 +212,12 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
       db.disconnect();
 
     } else {
-      res.status(500).send("No se aceptan parametros vacios.");
+      res.status(400).send("No se aceptan parametros vacios.");
+      console.log("No se aceptan parametros vacios.");
     }
   } catch (error) {
     res.status(500).send(error.message);
+    console.log(error.message);
   }
 };
 
@@ -228,7 +238,7 @@ const getListadoProgramacionesPonenteRecurso = async (req, res, next) => {
       await db.connect((error)=>{
         if (error) {       
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
-          return console.log("Error connection: getListadoProgramacionesFirmadoPonente");
+          return console.log("Error connection: getListadoProgramacionesPonenteRecurso");
         }
       });
 
@@ -237,10 +247,12 @@ const getListadoProgramacionesPonenteRecurso = async (req, res, next) => {
       db.disconnect();
 
     } else {
-      res.status(500).send("No se aceptan parametros vacios.");
+      res.status(400).send("No se aceptan parametros vacios.");
+      console.log("No se aceptan parametros vacios.");
     }
   } catch (error) {
     res.status(500).send(error.message);
+    console.log(error.message);
   }
 }
 
@@ -271,10 +283,12 @@ const getListadoEscritosAnual = async (req, res, next) => {
       db.disconnect();
 
     } else {
-      res.status(500).send("No se aceptan parametros vacios.");
+      res.status(400).send("No se aceptan parametros vacios.");
+      console.log("No se aceptan parametros vacios.");
     }
   } catch (error) {
     res.status(500).send(error.message);
+    console.log(error.message);
   }
 };
 
@@ -304,10 +318,12 @@ const getListaTipoEscritos = async (req, res, next) => {
       db.disconnect();
 
     } else {
-      res.status(500).send("No se aceptan parametros vacios.");
+      res.status(400).send("No se aceptan parametros vacios.");
+      console.log("No se aceptan parametros vacios.");
     }
   } catch (error) {
     res.status(500).send(error.message);
+    console.log(error.message);
   }
 };
 
@@ -337,10 +353,12 @@ const getListadoEscritosPendienteAtendido = async (req, res, next) => {
       db.disconnect();
 
     } else {
-      res.status(500).send("No se aceptan parametros vacios.");
+      res.status(400).send("No se aceptan parametros vacios.");
+      console.log("No se aceptan parametros vacios.");
     }
   } catch (error) {
     res.status(500).send(error.message);
+    console.log(error.message);
   }
 };
 
@@ -371,7 +389,7 @@ const validarAccessToken = async (req, res, next) => {
   const accessToken = req.headers["authorization"];
   await jwt.verify(accessToken, config.secretkey, (err, data) => {
     if (err) {
-      res.status(500).send("Access denied, token expired or incorrect");
+      res.status(401).send("Access denied, token expired or incorrect");
     } else {
       next();
     }
