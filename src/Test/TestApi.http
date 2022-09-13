@@ -2,52 +2,52 @@
 
 ###################################INGRESOS######################################################
 ### GET getListadoExpIngresos
-GET http://localhost:4000/api/getListadoExpIngresos/2017-01-01/2022-08-10
+GET http://localhost:4000/api/getListadoExpIngresos/2022-01-01/2022-08-10
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
 ### GET getListadoIngresoMensualxTipRecurso
-GET http://localhost:4000/api/getListadoIngresoMensualxTipRecurso/101/2017-01-01/2022-08-10
+GET http://localhost:4000/api/getListadoIngresoMensualxTipRecurso/101/2022-01-01/2022-08-10
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
-### GET getListadoIngresoMensualxCorteProced
-GET http://localhost:4000/api/getListadoIngresoMensualxCorteProced/101/2017-01-01/2022-08-10
+### GET getListadoIngresoMensualxCorteProcedXXXX
+GET http://localhost:4000/api/getListadoIngresoMensualxCorteProced/101/2022-01-01/2022-08-10
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
 ###################################PROGRAMADOS###################################################
 ### GET getListadoProgramaciones
-GET http://localhost:4000/api/getListadoProgramaciones/2021-01-01/2022-08-10
+GET http://localhost:4000/api/getListadoProgramaciones/2022-01-01/2022-08-10
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
 ### GET getListadoProgramacionesPonente
-GET http://localhost:4000/api/getListadoProgramacionesPonente/101/2017-01-01/2022-08-10
+GET http://localhost:4000/api/getListadoProgramacionesPonente/101/2022-01-01/2022-08-10
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
-### GET getListadoProgramacionesFirmadoPonente
-GET http://localhost:4000/api/getListadoProgramacionesFirmadoPonente/101/2017-01-01/2022-08-10
+### GET getListadoProgramacionesFirmadoPonenteXXX
+GET http://localhost:4000/api/getListadoProgramacionesFirmadoPonente/102/2022-01-01/2022-08-10
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
 ### GET getListadoProgramacionesPonenteRecurso
-GET http://localhost:4000/api/getListadoProgramacionesPonenteRecurso/101/2021-08-24/2022-08-24/CSANMARTIN
+GET http://localhost:4000/api/getListadoProgramacionesPonenteRecurso/102/2020-08-24/2022-08-24/SCASTAÑEDA
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
 ###################################ESCRITOS#####################################################
 ### GET getListadoEscritosAnual
-GET http://localhost:4000/api/getListadoEscritosAnual/2018-01-01/2022-08-10
+GET http://localhost:4000/api/getListadoEscritosAnual/2022-01-01/2022-08-10
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
 ### GET getListaTipoEscritos
-GET http://localhost:4000/api/getListaTipoEscritos/101/2017-01-01/2022-08-10
+GET http://localhost:4000/api/getListaTipoEscritos/101/2022-01-01/2022-08-10
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
 ### GET getListadoEscritosPendienteAtendido
-GET http://localhost:4000/api/getListadoEscritosPendienteAtendido/101/2020-01-01/2022-08-10
+GET http://localhost:4000/api/getListadoEscritosPendienteAtendido/101/2022-01-01/2022-08-10
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I

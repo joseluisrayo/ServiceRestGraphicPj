@@ -3,6 +3,7 @@ import config from "./../config.js";
 import { scripts as consultasql } from "./../database/scripts.js";
 import jwt from "jsonwebtoken";
 import moment from "moment";
+import utf8 from "utf8";
 
 // const generateAccessToken = () => {
 //   //Default_token: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
@@ -102,7 +103,13 @@ const getListadoIngresoMensualxCorteProced = async (req, res, next) => {
       });
 
       const data = await db.query(querys);
-      res.status(200).json(data);
+      const replaces = data.map((item) => {
+        if(item["00_Corte Procedencia"] == "CA�ETE") {
+          item["00_Corte Procedencia"] = "CAÑETE"
+        }
+        return item;
+      });
+      res.status(200).json(replaces);
       db.disconnect();
 
     } else {
@@ -208,7 +215,13 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
       });
 
       const data = await db.query(querys);
-      res.status(200).json(data);
+      const replaces = data.map((item) => {
+        if(item["00_Ponente"] == "SCASTA�EDA") {
+          item["00_Ponente"] = "SCASTAÑEDA"
+        }
+        return item;
+      });
+      res.status(200).json(replaces);
       db.disconnect();
 
     } else {
