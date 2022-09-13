@@ -3,7 +3,6 @@ import config from "./../config.js";
 import { scripts as consultasql } from "./../database/scripts.js";
 import jwt from "jsonwebtoken";
 import moment from "moment";
-import utf8 from "utf8";
 
 // const generateAccessToken = () => {
 //   //Default_token: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
@@ -104,8 +103,9 @@ const getListadoIngresoMensualxCorteProced = async (req, res, next) => {
 
       const data = await db.query(querys);
       const replaces = data.map((item) => {
-        if(item["00_Corte Procedencia"] == "CA�ETE") {
-          item["00_Corte Procedencia"] = "CAÑETE"
+        const preplace = item["00_Corte Procedencia"].replace("�", "Ñ");
+        if(preplace.length > 0){
+          item["00_Corte Procedencia"] = preplace;
         }
         return item;
       });
@@ -180,7 +180,14 @@ const getListadoProgramacionesPonente = async (req, res, next) => {
       });
 
       const data = await db.query(querys);
-      res.status(200).json(data);
+      const replaces = data.map((item) => {
+        const preplace = item["00_Ponente"].replace("�", "Ñ");
+        if(preplace.length > 0){
+          item["00_Ponente"] = preplace;
+        }
+        return item;
+      });
+      res.status(200).json(replaces);
       db.disconnect();
 
     } else {
@@ -216,8 +223,9 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
 
       const data = await db.query(querys);
       const replaces = data.map((item) => {
-        if(item["00_Ponente"] == "SCASTA�EDA") {
-          item["00_Ponente"] = "SCASTAÑEDA"
+        const preplace = item["00_Ponente"].replace("�", "Ñ");
+        if(preplace.length > 0){
+          item["00_Ponente"] = preplace;
         }
         return item;
       });
@@ -237,7 +245,7 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
 const getListadoProgramacionesPonenteRecurso = async (req, res, next) => {
   try {
     const { instancia, fechaini, fechafin, ponente } = req.params;
-    if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0) {
+    if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0 && ponente.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
       const querys = await consultasql.ListadoProgramacionesPonenteRecurso(instancia, result_fecha, ponente);
       const db = new SybasePromised({
@@ -256,7 +264,14 @@ const getListadoProgramacionesPonenteRecurso = async (req, res, next) => {
       });
 
       const data = await db.query(querys);
-      res.status(200).json(data);
+      const replaces = data.map((item) => {
+        const preplace = item["02_Ponente"].replace("�", "Ñ");
+        if(preplace.length > 0){
+          item["02_Ponente"] = preplace;
+        }
+        return item;
+      });
+      res.status(200).json(replaces);
       db.disconnect();
 
     } else {

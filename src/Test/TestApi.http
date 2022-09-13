@@ -23,7 +23,7 @@ authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy
 
 
 ### GET getListadoProgramacionesPonente
-GET http://localhost:4000/api/getListadoProgramacionesPonente/101/2022-01-01/2022-08-10
+GET http://localhost:4000/api/getListadoProgramacionesPonente/102/2022-01-01/2022-08-10
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
@@ -33,7 +33,7 @@ authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy
 
 
 ### GET getListadoProgramacionesPonenteRecurso
-GET http://localhost:4000/api/getListadoProgramacionesPonenteRecurso/102/2020-08-24/2022-08-24/SCASTAÑEDA
+GET http://localhost:4000/api/getListadoProgramacionesPonenteRecurso/102/2021-08-24/2022-08-24/IGUERRERO
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
