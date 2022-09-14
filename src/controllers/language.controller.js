@@ -171,7 +171,7 @@ const getListadoProgramacionesPonente = async (req, res, next) => {
         username: config.username,
         password: config.password,
       });
-      console.log(querys);
+
       await db.connect((error) => {
         if (error) {
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
@@ -182,9 +182,7 @@ const getListadoProgramacionesPonente = async (req, res, next) => {
       const data = await db.query(querys);
       const replaces = data.map((item) => {
         const preplace = item["00_Ponente"].replace("�", "Ñ");
-        if (preplace.length > 0) {
-          item["00_Ponente"] = preplace;
-        }
+        preplace.length > 0 && (item["00_Ponente"] = preplace);
         return item;
       });
       res.status(200).json(replaces);
@@ -224,9 +222,7 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
       const data = await db.query(querys);
       const replaces = data.map((item) => {
         const preplace = item["00_Ponente"].replace("�", "Ñ");
-        if (preplace.length > 0) {
-          item["00_Ponente"] = preplace;
-        }
+        preplace.length > 0 && (item["00_Ponente"] = preplace);
         return item;
       });
       res.status(200).json(replaces);
