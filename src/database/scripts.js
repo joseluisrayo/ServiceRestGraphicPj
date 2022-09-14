@@ -306,7 +306,7 @@ const ListadoProgramacionesPonenteRecurso = (n_sala, fecha, ponente) => `
         AND ie.c_provincia = '01' 
         AND ie.c_instancia = '${n_sala}'    
         AND cg.f_programacion BETWEEN ${fecha}
-        AND cg.c_usuario_vocal = '${ponente}' 
+        AND cg.c_usuario_vocal LIKE '%${ponente}%' 
         AND ie.l_ultimo = 'S'
         AND cg.num_tipo_audiencia <> 5
         AND ISNULL(e.l_anulado,'N') = 'N'      

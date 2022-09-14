@@ -24,8 +24,8 @@ const getListdoExpIngresos = async (req, res, next) => {
         password: config.password,
       });
 
-      await db.connect((error)=>{
-        if (error) {       
+      await db.connect((error) => {
+        if (error) {
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
           return console.log("Error connection: getListdoExpIngresos");
         }
@@ -59,8 +59,8 @@ const getListadoIngresoMensualxTipRecurso = async (req, res, next) => {
         password: config.password,
       });
 
-      await db.connect((error)=>{
-        if (error) {       
+      await db.connect((error) => {
+        if (error) {
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
           return console.log("Error connection: getListadoIngresoMensualxTipRecurso");
         }
@@ -94,8 +94,8 @@ const getListadoIngresoMensualxCorteProced = async (req, res, next) => {
         password: config.password,
       });
 
-      await db.connect((error)=>{
-        if (error) {       
+      await db.connect((error) => {
+        if (error) {
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
           return console.log("Error connection: getListadoIngresoMensualxCorteProced");
         }
@@ -104,7 +104,7 @@ const getListadoIngresoMensualxCorteProced = async (req, res, next) => {
       const data = await db.query(querys);
       const replaces = data.map((item) => {
         const preplace = item["00_Corte Procedencia"].replace("�", "Ñ");
-        if(preplace.length > 0){
+        if (preplace.length > 0) {
           item["00_Corte Procedencia"] = preplace;
         }
         return item;
@@ -137,8 +137,8 @@ const getListadoProgramaciones = async (req, res, next) => {
         password: config.password,
       });
 
-      await db.connect((error)=>{
-        if (error) {       
+      await db.connect((error) => {
+        if (error) {
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
           return console.log("Error connection: getListadoProgramaciones");
         }
@@ -171,9 +171,9 @@ const getListadoProgramacionesPonente = async (req, res, next) => {
         username: config.username,
         password: config.password,
       });
-
-      await db.connect((error)=>{
-        if (error) {       
+      console.log(querys);
+      await db.connect((error) => {
+        if (error) {
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
           return console.log("Error connection: getListadoProgramacionesPonente");
         }
@@ -182,7 +182,7 @@ const getListadoProgramacionesPonente = async (req, res, next) => {
       const data = await db.query(querys);
       const replaces = data.map((item) => {
         const preplace = item["00_Ponente"].replace("�", "Ñ");
-        if(preplace.length > 0){
+        if (preplace.length > 0) {
           item["00_Ponente"] = preplace;
         }
         return item;
@@ -214,8 +214,8 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
         password: config.password,
       });
 
-      await db.connect((error)=>{
-        if (error) {       
+      await db.connect((error) => {
+        if (error) {
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
           return console.log("Error connection: getListadoProgramacionesFirmadoPonente");
         }
@@ -224,7 +224,7 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
       const data = await db.query(querys);
       const replaces = data.map((item) => {
         const preplace = item["00_Ponente"].replace("�", "Ñ");
-        if(preplace.length > 0){
+        if (preplace.length > 0) {
           item["00_Ponente"] = preplace;
         }
         return item;
@@ -244,9 +244,10 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
 
 const getListadoProgramacionesPonenteRecurso = async (req, res, next) => {
   try {
-    const { instancia, fechaini, fechafin, ponente } = req.params;
+    let { instancia, fechaini, fechafin, ponente } = req.params;
     if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0 && ponente.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
+      ponente === "SCASTAÑEDA" && (ponente = "SCASTA");
       const querys = await consultasql.ListadoProgramacionesPonenteRecurso(instancia, result_fecha, ponente);
       const db = new SybasePromised({
         host: config.host,
@@ -256,8 +257,8 @@ const getListadoProgramacionesPonenteRecurso = async (req, res, next) => {
         password: config.password,
       });
 
-      await db.connect((error)=>{
-        if (error) {       
+      await db.connect((error) => {
+        if (error) {
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
           return console.log("Error connection: getListadoProgramacionesPonenteRecurso");
         }
@@ -265,10 +266,12 @@ const getListadoProgramacionesPonenteRecurso = async (req, res, next) => {
 
       const data = await db.query(querys);
       const replaces = data.map((item) => {
-        const preplace = item["02_Ponente"].replace("�", "Ñ");
-        if(preplace.length > 0){
-          item["02_Ponente"] = preplace;
-        }
+        const preplace1 = item["02_Ponente"].replace("�", "Ñ");
+        const preplace2 = item["09_TipoAudiencia"].replace("�", "ó");
+        const preplace3 = item["11_Accion"].replace("�", "ó");
+        preplace1.length > 0 && (item["02_Ponente"] = preplace1);
+        preplace2.length > 0 && (item["09_TipoAudiencia"] = preplace2);
+        preplace3.length > 0 && (item["11_Accion"] = preplace3);
         return item;
       });
       res.status(200).json(replaces);
@@ -299,8 +302,8 @@ const getListadoEscritosAnual = async (req, res, next) => {
         password: config.password,
       });
 
-      await db.connect((error)=>{
-        if (error) {       
+      await db.connect((error) => {
+        if (error) {
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
           return console.log("Error connection: getListadoEscritosAnual");
         }
@@ -334,8 +337,8 @@ const getListaTipoEscritos = async (req, res, next) => {
         password: config.password,
       });
 
-      await db.connect((error)=>{
-        if (error) {       
+      await db.connect((error) => {
+        if (error) {
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
           return console.log("Error connection: getListaTipoEscritos");
         }
@@ -369,8 +372,8 @@ const getListadoEscritosPendienteAtendido = async (req, res, next) => {
         password: config.password,
       });
 
-      await db.connect((error)=>{
-        if (error) {       
+      await db.connect((error) => {
+        if (error) {
           res.status(500).send("No se conectar con la base de datos, intentelo mas tarde.");
           return console.log("Error connection: getListadoEscritosPendienteAtendido");
         }
