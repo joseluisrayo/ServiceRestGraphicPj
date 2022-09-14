@@ -103,7 +103,7 @@ const getListadoIngresoMensualxCorteProced = async (req, res, next) => {
 
       const data = await db.query(querys);
       const replaces = data.map((item) => {
-        const preplace = item["00_Corte Procedencia"].replace("�", "Ñ");
+        const preplace = (item["00_Corte Procedencia"] || '').replace("�", "Ñ");
         if (preplace.length > 0) {
           item["00_Corte Procedencia"] = preplace;
         }
@@ -181,7 +181,7 @@ const getListadoProgramacionesPonente = async (req, res, next) => {
 
       const data = await db.query(querys);
       const replaces = data.map((item) => {
-        const preplace = item["00_Ponente"].replace("�", "Ñ");
+        const preplace = (item["00_Ponente"] || '').replace("�", "Ñ");
         preplace.length > 0 && (item["00_Ponente"] = preplace);
         return item;
       });
@@ -221,7 +221,7 @@ const getListadoProgramacionesFirmadoPonente = async (req, res, next) => {
 
       const data = await db.query(querys);
       const replaces = data.map((item) => {
-        const preplace = item["00_Ponente"].replace("�", "Ñ");
+        const preplace = (item["00_Ponente"] || '').replace("�", "Ñ");
         preplace.length > 0 && (item["00_Ponente"] = preplace);
         return item;
       });
@@ -263,9 +263,9 @@ const getListadoProgramacionesPonenteRecurso = async (req, res, next) => {
 
       const data = await db.query(querys);
       const replaces = data.map((item) => {
-        const preplace1 = item["02_Ponente"].replace("�", "Ñ");
-        const preplace2 = item["09_TipoAudiencia"].replace("�", "ó");
-        const preplace3 = item["11_Accion"].replace("�", "ó");
+        const preplace1 = (item["02_Ponente"] || '').replace("�", "Ñ");
+        const preplace2 = (item["09_TipoAudiencia"] || '').replace("�", "ó");
+        const preplace3 = (item["11_Accion"] || '').replace("�", "ó");
         preplace1.length > 0 && (item["02_Ponente"] = preplace1);
         preplace2.length > 0 && (item["09_TipoAudiencia"] = preplace2);
         preplace3.length > 0 && (item["11_Accion"] = preplace3);

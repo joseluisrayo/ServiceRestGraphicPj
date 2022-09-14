@@ -33,7 +33,7 @@ authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy
 
 
 ### GET getListadoProgramacionesPonenteRecurso
-GET http://localhost:4000/api/getListadoProgramacionesPonenteRecurso/202/2022-01-01/2022-08-10/VPRADO
+GET http://localhost:4000/api/getListadoProgramacionesPonenteRecurso/201/2020-09-14/2022-09-14/AARANDAR
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
