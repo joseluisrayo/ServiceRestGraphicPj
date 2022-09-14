@@ -244,6 +244,7 @@ const getListadoProgramacionesPonenteRecurso = async (req, res, next) => {
     if (instancia.length != 0 && fechaini.length != 0 && fechafin.length != 0 && ponente.length != 0) {
       const result_fecha = validarFecha(fechaini, fechafin);
       ponente === "SCASTAÑEDA" && (ponente = "SCASTA");
+      ponente === "HNUÑEZ" && (ponente = "HNU");
       const querys = await consultasql.ListadoProgramacionesPonenteRecurso(instancia, result_fecha, ponente);
       const db = new SybasePromised({
         host: config.host,
