@@ -47,6 +47,12 @@ router.get(
     languageController.getListadoProgramacionesPonenteRecurso
 );
 
+router.get(
+    "/api/getListadoProgramacionesPendientexSala/:fechaini/:fechafin",
+    languageController.validarAccessToken,
+    languageController.getListadoProgramacionesPendientexSala
+);
+
 //ROUTER ESCRITOS
 router.get(
     "/api/getListadoEscritosAnual/:fechaini/:fechafin",
@@ -64,6 +70,38 @@ router.get(
     "/api/getListadoEscritosPendienteAtendido/:instancia/:fechaini/:fechafin",
     languageController.validarAccessToken,
     languageController.getListadoEscritosPendienteAtendido
+);
+
+//ROUTER PENDIENTE FALLO
+router.get(
+    "/api/getListdoPendienteSentidoFalloxSala/:fechaini/:fechafin",
+    languageController.validarAccessToken,
+    languageController.getListdoPendienteSentidoFalloxSala
+);
+
+router.get(
+    "/api/getListadoPendienteSentidoFalloxPonente/:instancia/:fechaini/:fechafin",
+    languageController.validarAccessToken,
+    languageController.getListadoPendienteSentidoFalloxPonente
+);
+
+router.get(
+    "/api/getListadoPendienteSentidoFalloxPonenteDetallado/:instancia/:fechaini/:fechafin/:ponente",
+    languageController.validarAccessToken,
+    languageController.getListadoPendienteSentidoFalloxPonenteDetallado
+);
+
+//ROUTER VERSUS INGRESOS Y PROGRAMADOS X AÑO-MES
+router.get(
+    "/api/getListadoVersusIngresosyProgramadoxAnio/:anio",
+    languageController.validarAccessToken,
+    languageController.getListadoVersusIngresosyProgramadoxAnio
+);
+
+router.get(
+    "/api/getListadoVersusIngresosyProgramadoxMes/:instancia/:anio",
+    languageController.validarAccessToken,
+    languageController.getListadoVersusIngresosyProgramadoxMes
 );
 
 export default router;

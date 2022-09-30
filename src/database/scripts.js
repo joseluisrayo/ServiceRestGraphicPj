@@ -129,11 +129,11 @@ const ListadoProgramaciones = (fecha) => `
     count(CASE WHEN x.c_instancia  = '102' THEN 1 END) AS '102_SPT', 		      
     count(CASE WHEN x.c_instancia  = '201' THEN 1 END) AS '201_SCP',
     count(CASE WHEN x.c_instancia  = '202' THEN 1 END) AS '202_SCT',
-    count(CASE WHEN x.c_instancia  = '203' THEN 1 END) AS '203_SDCP' ,
-    count(CASE WHEN x.c_instancia  = '204' THEN 1 END) AS '204_1SDCT' ,
-    count(CASE WHEN x.c_instancia  = '206' THEN 1 END) AS '206_2SDCT' ,
-    count(CASE WHEN x.c_instancia  = '207' THEN 1 END) AS '207_3SDCT'  ,
-    count(CASE WHEN x.c_instancia  = '208' THEN 1 END) AS '208_4SDCT' ,
+    count(CASE WHEN x.c_instancia  = '203' THEN 1 END) AS '203_SDCP',
+    count(CASE WHEN x.c_instancia  = '204' THEN 1 END) AS '204_1SDCT',
+    count(CASE WHEN x.c_instancia  = '206' THEN 1 END) AS '206_2SDCT',
+    count(CASE WHEN x.c_instancia  = '207' THEN 1 END) AS '207_3SDCT' ,
+    count(CASE WHEN x.c_instancia  = '208' THEN 1 END) AS '208_4SDCT',
     count(CASE WHEN x.c_instancia  = '209' THEN 1 END) AS '209_5SDCT' 
     FROM 
     ( SELECT     year(cg.f_programacion)  AS anno,
@@ -245,93 +245,169 @@ const ListadoProgramacionesFirmadoPonente = (n_sala, fecha) => `
 `;
 
 const ListadoProgramacionesPonenteRecurso = (n_sala, fecha, ponente) => `
-    SELECT  
-        year(cg.f_programacion) AS '00_Año',
-        s.x_descripcion AS '01_Mes',
-        RTRIM(cg.c_usuario_vocal) AS '02_Ponente',
-        RTRIM(mim.x_desc_motivo_ingreso) AS '03_Recurso',  
-        ie.n_exp_sala AS '04_NumRecurso',
-        ie.n_ano_sala AS '05_AñoRecurso' ,    
-        CONVERT(varchar(10), ie.f_ingreso, 103) AS '06_FechaIngreso',  
-        RTRIM(em.x_desc_estado) AS '07_EstadoExp',
-        CONVERT(varchar(10), cg.f_programacion, 103) AS '08_FechaProgramacion',
-        pao.x_descripcion AS '09_TipoAudiencia',
-        datediff( dd, cg.f_programacion, getdate() ) AS '10_DiasPendiente',
-        ISNULL (m.des_accion, '----------') AS '11_Accion',
-        ISNULL (CONVERT(varchar(10), a.fec_envio_detalle, 103), '----------') AS '12_FechaEnvio',
-        ISNULL (CONVERT(varchar(10), a.fec_recepcion_detalle, 103), '----------') AS '13_FechaRecepcion', 
-        ISNULL (a.ano_cargo, '----------') AS '14_AñoCargo',
-        ISNULL(CONVERT (VARCHAR(100), a.num_cargo), '----------')  AS '15_NumCargo'
-    FROM instancia_expediente ie (index idx_inst_exp_011)  noholdlock
-    JOIN expediente e noholdlock
-    ON e.n_unico = ie.n_unico AND
-    e.n_incidente = ie.n_incidente
-    JOIN conformacion_grupo   cg noholdlock
+    SELECT
+            CONVERT(varchar(4),year(cg.f_programacion)) + '-' + s.x_descripcion AS '00_AñoMes',
+            RTRIM(cg.c_usuario_vocal) AS '01_Ponente',
+            ISNULL (a.c_usuario_recepcion, '----------') as '02_UsuarioRecepcion',
+            RTRIM(mim.x_desc_motivo_ingreso)+ ' ' + CONVERT(varchar(10),ie.n_exp_sala) + '-' + ie.n_ano_sala AS '03_Recurso',
+            CONVERT(varchar(10), ie.f_ingreso, 103) AS '04_FechaIngreso',
+            RTRIM(em.x_desc_estado) AS '05_EstadoExp',
+            CONVERT(varchar(10), cg.f_programacion, 103) AS '06_FechaProgramacion',
+            ISNULL (pao.x_descripcion, '----------') AS '07_TipoAudiencia',
+            datediff( dd, cg.f_programacion, getdate() ) AS '08_DiasPendiente',
+            ISNULL (m.des_accion, '----------') AS '09_Accion',
+            ISNULL (CONVERT(varchar(10), a.fec_envio_detalle, 103), '----------') AS '10_FechaEnvio',
+            ISNULL (CONVERT(varchar(10), a.fec_recepcion_detalle, 103), '----------') AS '11_FechaRecepcion',
+            ISNULL (a.ano_cargo, '----------') AS '12_AñoCargo',
+            ISNULL(CONVERT (VARCHAR(100), a.num_cargo), '----------')  AS '13_NumCargo'
+        FROM instancia_expediente ie (index idx_inst_exp_011)  noholdlock
+        JOIN expediente e noholdlock
+        ON e.n_unico = ie.n_unico AND
+        e.n_incidente = ie.n_incidente
+        JOIN conformacion_grupo   cg noholdlock
+                ON ie.c_distrito = cg.c_distrito AND ie.c_provincia = cg.c_provincia
+                        AND ie.c_instancia = cg.c_instancia AND ie.n_unico = cg.n_unico
+                        AND ie.n_incidente = cg.n_incidente AND ie.f_ingreso = cg.f_ingreso
+                        AND cg.l_ultimo = 'S' AND cg.l_ultimo_audiencia = 'S'
+                        AND cg.l_reprogramado = 'N' AND cg.l_no_vista = 'N' AND cg.l_publicado = 'S'
+                        AND cg.c_usuario_vocal IS NOT NULL
+                JOIN grupo_programacion gp noholdlock ON
+            gp.c_programacion = cg.c_programacion AND
+            gp.n_grupo = cg.n_grupo  AND
+            gp.n_secuencia = cg.n_secuencia
+        JOIN programacion_instancia prg noholdlock ON
+        prg.c_programacion = gp.c_programacion
+        JOIN cargo_detalle a (INDEX idx_cargo_detalle_07) noholdlock
+        ON a.n_unico = ie.n_unico AND
+        a.n_incidente = ie.n_incidente AND
+        a.cod_accion = '013' AND
+        a.ind_estado_detalle IN ('E' , 'R' ) AND
+        a.fec_envio_detalle >= prg.f_registro AND
+        a.fec_envio_detalle = ( SELECT max(fec_envio_detalle) FROM cargo_detalle m (INDEX idx_cargo_detalle_07) Noholdlock
+                WHERE m.n_unico = a.n_unico AND
+                    m.n_incidente = a.n_incidente   )
+        LEFT JOIN acciones_maestro m noholdlock
+        ON a.cod_accion = m.cod_accion
+        JOIN motivo_ingreso_maestro mim noholdlock
+        ON ie.c_motivo_ingreso = mim.c_motivo_ingreso
+        JOIN expediente_estado ee noholdlock ON ee.n_unico = ie.n_unico
+        AND ee.n_incidente = ie.n_incidente AND ee.l_ultimo = 'S'
+            JOIN estado_maestro em noholdlock ON em.c_estado = ee.c_estado
+            JOIN meses s ON s.n_mes = month(cg.f_programacion)
+        LEFT JOIN tipo_programa_audiencia_organo pao (INDEX idx_tipo_programa_aud_org_001) NOHOLDLOCK
+        ON pao.num_tipo_audiencia = cg.num_tipo_audiencia
+        AND pao.c_org_jurisd = '01'
+        AND pao.c_especialidad = ie.c_especialidad
+        WHERE ie.c_distrito = '50'
+            AND ie.c_provincia = '01'
+            AND ie.c_instancia = '${n_sala}'    
+            AND cg.f_programacion BETWEEN ${fecha}
+            AND cg.c_usuario_vocal LIKE '%${ponente}%'
+        
+            AND ie.l_ultimo = 'S'
+            AND cg.num_tipo_audiencia <> 5
+            AND ISNULL(e.l_anulado,'N') = 'N'
+            AND ee.c_estado NOT IN ('066','396')
+        AND  (( ie.c_especialidad ='PE' AND  NOT EXISTS
+                                    (SELECT 1 FROM ResolucionEditorEnvioEst s noholdlock
+                                                            WHERE
+                                                                    s.ano_cargo = a.ano_cargo AND
+                                                                    s.num_cargo = a.num_cargo AND
+                                                                    s.n_unico       = a.n_unico AND
+                                                                    s.n_incidente=a.n_incidente and
+                                                                    s.l_activo = 'S')
+                                            ) OR
+                    ( ie.c_especialidad <> 'PE'  AND  NOT EXISTS
+                                    (SELECT 1 FROM ResolucionEditorMovimientoDet s noholdlock
+                                                            WHERE s.c_distrito = a.c_distrito AND
+                                                                    s.ano_cargo = a.ano_cargo AND
+                                                                    s.num_cargo = a.num_cargo AND
+                                                                    s.n_unico       = a.n_unico AND
+                                                                    s.n_incidente=a.n_incidente and
+                                                                    s.l_activo = 'S')       )
+                    )
+        ORDER BY cg.f_programacion
+`;
+
+const ListadoProgramacionPendientexSala = (fecha) => `
+    SELECT
+        x.anno AS '00_anno',
+        count(CASE WHEN x.c_instancia  = '101' THEN 1 END) AS '101_SPP',
+        count(CASE WHEN x.c_instancia  = '102' THEN 1 END) AS '102_SPT',      
+        count(CASE WHEN x.c_instancia  = '201' THEN 1 END) AS '201_SCP',
+        count(CASE WHEN x.c_instancia  = '202' THEN 1 END) AS '202_SCT',
+        count(CASE WHEN x.c_instancia  = '203' THEN 1 END) AS '203_SDCP' ,
+        count(CASE WHEN x.c_instancia  = '204' THEN 1 END) AS '204_1SDCT' ,
+        count(CASE WHEN x.c_instancia  = '206' THEN 1 END) AS '206_2SDCT' ,
+        count(CASE WHEN x.c_instancia  = '207' THEN 1 END) AS '207_3SDCT'  ,
+        count(CASE WHEN x.c_instancia  = '208' THEN 1 END) AS '208_4SDCT' ,
+        count(CASE WHEN x.c_instancia  = '209' THEN 1 END) AS '209_5SDCT'            
+            
+        FROM  
+        ( SELECT      
+        cg.n_unico ,
+        cg.n_incidente ,
+        cg.c_instancia,
+        cg.c_usuario_vocal ,
+        cg.f_programacion ,
+        year(cg.f_programacion) anno  
+        FROM instancia_expediente ie (INDEX insta_expe_unic)  noholdlock
+        JOIN expediente e noholdlock
+        ON e.n_unico=ie.n_unico
+        AND e.n_incidente=ie.n_incidente
+        JOIN conformacion_grupo   cg noholdlock
             ON ie.c_distrito = cg.c_distrito AND ie.c_provincia = cg.c_provincia
                     AND ie.c_instancia = cg.c_instancia AND ie.n_unico = cg.n_unico
                     AND ie.n_incidente = cg.n_incidente AND ie.f_ingreso = cg.f_ingreso
                     AND cg.l_ultimo = 'S' AND cg.l_ultimo_audiencia = 'S'
                     AND cg.l_reprogramado = 'N' AND cg.l_no_vista = 'N' AND cg.l_publicado = 'S'
-                    AND cg.c_usuario_vocal IS NOT NULL
-            JOIN grupo_programacion gp noholdlock ON
+                    AND cg.c_usuario_vocal IS NOT NULL    
+        JOIN grupo_programacion gp noholdlock ON
         gp.c_programacion = cg.c_programacion AND
         gp.n_grupo = cg.n_grupo  AND
         gp.n_secuencia = cg.n_secuencia    
     JOIN programacion_instancia prg noholdlock ON
     prg.c_programacion = gp.c_programacion
-    LEFT JOIN cargo_detalle a (INDEX idx_cargo_detalle_07) noholdlock  
+    JOIN cargo_detalle a (INDEX idx_cargo_detalle_07) noholdlock  
     ON a.n_unico = ie.n_unico AND
     a.n_incidente = ie.n_incidente AND
     a.cod_accion = '013' AND
-    a.ind_estado_detalle IN ('E','R') AND
+    a.ind_estado_detalle IN ('E' , 'R' ) AND
     a.fec_envio_detalle >= prg.f_registro AND
     a.fec_envio_detalle = ( SELECT max(fec_envio_detalle) FROM cargo_detalle m (INDEX idx_cargo_detalle_07) Noholdlock
             WHERE m.n_unico = a.n_unico AND
-                m.n_incidente = a.n_incidente AND
-                m.cod_accion = '013' AND
-                m.ind_estado_detalle IN ('E','R') )
-            LEFT JOIN acciones_maestro m noholdlock  
-    ON a.cod_accion = m.cod_accion
-    JOIN motivo_ingreso_maestro mim noholdlock  
-    ON ie.c_motivo_ingreso = mim.c_motivo_ingreso  
-    JOIN expediente_estado ee noholdlock ON ee.n_unico = ie.n_unico
-    AND ee.n_incidente = ie.n_incidente AND ee.l_ultimo = 'S'
-        JOIN estado_maestro em noholdlock ON em.c_estado = ee.c_estado
-        JOIN meses s ON s.n_mes = month(cg.f_programacion)
-    LEFT JOIN tipo_programa_audiencia_organo pao (INDEX idx_tipo_programa_aud_org_001) NOHOLDLOCK
-    ON pao.num_tipo_audiencia = cg.num_tipo_audiencia
-    AND pao.c_org_jurisd = '01'
-    AND pao.c_especialidad = ie.c_especialidad    
-    WHERE ie.c_distrito = '50'
-        AND ie.c_provincia = '01' 
-        AND ie.c_instancia = '${n_sala}'    
-        AND cg.f_programacion BETWEEN ${fecha}
-        AND cg.c_usuario_vocal LIKE '%${ponente}%' 
+                m.n_incidente = a.n_incidente   )
+        JOIN expediente_estado ee noholdlock ON ee.n_unico = ie.n_unico
+        AND ee.n_incidente = ie.n_incidente AND ee.l_ultimo = 'S'
+
+        WHERE ie.c_distrito = '50'
+        AND  ie.c_provincia = '01'
+        
+        and  cg.f_programacion BETWEEN ${fecha}  
         AND ie.l_ultimo = 'S'
         AND cg.num_tipo_audiencia <> 5
-        AND ISNULL(e.l_anulado,'N') = 'N'      
-    AND  (( ie.c_especialidad ='PE' AND  NOT EXISTS
-    				 (SELECT 1 FROM ResolucionEditorEnvioEst s noholdlock  
-							WHERE 
-								  s.ano_cargo = a.ano_cargo AND 
-								  s.num_cargo = a.num_cargo AND 
-								  s.n_unico	  = a.n_unico AND 
-								  s.n_incidente=a.n_incidente and 
-								  s.l_activo = 'S') 
-					 ) OR 
-		  ( ie.c_especialidad <> 'PE'  AND  NOT EXISTS
-    				 (SELECT 1 FROM ResolucionEditorMovimientoDet s noholdlock  
-							WHERE s.c_distrito = a.c_distrito AND 
-								  s.ano_cargo = a.ano_cargo AND 
-								  s.num_cargo = a.num_cargo AND 
-								  s.n_unico	  = a.n_unico AND 
-								  s.n_incidente=a.n_incidente and 
-								  s.l_activo = 'S')	  )
-		   )
-    ORDER BY year(cg.f_programacion)  ,
-        month(cg.f_programacion) ,
-        cg.c_usuario_vocal,
-        cg.f_programacion
+        AND ISNULL(e.l_anulado,'N') = 'N'
+        AND ee.c_estado NOT IN ('066','396')
+        AND  (( ie.c_especialidad ='PE' AND  NOT EXISTS
+        (SELECT 1 FROM ResolucionEditorEnvioEst s noholdlock  
+    WHERE
+    s.ano_cargo = a.ano_cargo AND
+    s.num_cargo = a.num_cargo AND
+    s.n_unico  = a.n_unico AND
+    s.n_incidente=a.n_incidente and
+    s.l_activo = 'S')
+    ) OR
+    ( ie.c_especialidad <> 'PE'  AND  NOT EXISTS
+        (SELECT 1 FROM ResolucionEditorMovimientoDet s noholdlock  
+    WHERE s.c_distrito = a.c_distrito AND
+    s.ano_cargo = a.ano_cargo AND
+    s.num_cargo = a.num_cargo AND
+    s.n_unico  = a.n_unico AND
+    s.n_incidente=a.n_incidente and
+    s.l_activo = 'S')  )
+    )  
+        )  x
+        GROUP BY  x.anno                                    
 `;
 
 //QUERY ESCRITOS
@@ -438,6 +514,302 @@ const ListadoEscritosPendienteAtendido = (n_sala, fecha) => `
     END )  
 `;
 
+//QUERY PENDIENTE FALLO
+const ListadoPendienteSentidoFalloxSala = (fecha) => `
+    SELECT
+        x.anno AS '00_anno',
+        count(CASE WHEN x.c_instancia  = '101' THEN 1 END) AS '101_SPP',
+        count(CASE WHEN x.c_instancia  = '102' THEN 1 END) AS '102_SPT',      
+        count(CASE WHEN x.c_instancia  = '201' THEN 1 END) AS '201_SCP',
+        count(CASE WHEN x.c_instancia  = '202' THEN 1 END) AS '202_SCT',
+        count(CASE WHEN x.c_instancia  = '203' THEN 1 END) AS '203_SDCP' ,
+        count(CASE WHEN x.c_instancia  = '204' THEN 1 END) AS '204_1SDCT' ,
+        count(CASE WHEN x.c_instancia  = '206' THEN 1 END) AS '206_2SDCT' ,
+        count(CASE WHEN x.c_instancia  = '207' THEN 1 END) AS '207_3SDCT'  ,
+        count(CASE WHEN x.c_instancia  = '208' THEN 1 END) AS '208_4SDCT' ,
+        count(CASE WHEN x.c_instancia  = '209' THEN 1 END) AS '209_5SDCT'            
+            
+        FROM  
+        ( SELECT    
+        cg.n_unico ,
+        cg.n_incidente ,
+        cg.c_usuario_vocal ,
+        ie.n_exp_sala n_num_recurso,
+        ie.n_ano_sala n_ano_recurso ,
+        mim.x_desc_motivo_ingreso nom_recurso ,
+        cg.c_instancia,
+        cg.f_programacion ,
+        year(cg.f_programacion) anno  
+        FROM instancia_expediente ie (INDEX insta_expe_unic)  noholdlock
+        JOIN expediente e noholdlock
+        ON e.n_unico=ie.n_unico
+        AND e.n_incidente=ie.n_incidente
+        JOIN conformacion_grupo   cg noholdlock
+            ON ie.c_distrito = cg.c_distrito AND ie.c_provincia = cg.c_provincia
+                    AND ie.c_instancia = cg.c_instancia AND ie.n_unico = cg.n_unico
+                    AND ie.n_incidente = cg.n_incidente AND ie.f_ingreso = cg.f_ingreso
+                    AND cg.l_ultimo = 'S' AND cg.l_ultimo_audiencia = 'S'
+                    AND cg.l_reprogramado = 'N' AND cg.l_no_vista = 'N' AND cg.l_publicado = 'S'
+                    AND cg.c_usuario_vocal IS NOT NULL    
+    
+        JOIN expediente_estado ee noholdlock ON ee.n_unico = ie.n_unico
+        AND ee.n_incidente = ie.n_incidente AND ee.l_ultimo = 'S'
+
+    LEFT JOIN expediente_sentido es noholdlock ON
+    es.c_programacion = cg.c_programacion AND es.n_grupo = cg.n_grupo
+        AND es.n_secuencia = cg.n_secuencia AND es.n_conformacion = cg.n_conformacion
+        AND es.n_unico = cg.n_unico AND es.n_incidente = cg.n_incidente AND es.l_activo = 'S'
+        LEFT JOIN expediente_votacion_parte vp noholdlock ON
+    vp.n_unico = es.n_unico
+    AND vp.n_incidente = es.n_incidente
+    AND vp.n_sentido   = es.n_sentido
+    AND vp.l_activo    = 'S'
+    AND ( vp.c_sentido IS NOT NULL OR vp.c_fallo IS NOT NULL OR vp.x_observacion IS NOT NULL)  
+    JOIN motivo_ingreso_maestro mim noholdlock
+        ON ie.c_motivo_ingreso = mim.c_motivo_ingreso
+        WHERE ie.c_distrito = '50'
+        AND  ie.c_provincia = '01'
+        
+        and  cg.f_programacion BETWEEN ${fecha}  
+        AND ie.l_ultimo = 'S'
+        AND cg.num_tipo_audiencia <> 5
+        AND ISNULL(e.l_anulado,'N') = 'N'
+        AND ee.c_estado NOT IN ('066','396')  
+        AND  (( ie.c_especialidad ='PE' AND  NOT EXISTS
+        (SELECT 1    
+                            FROM   fallo f noholdlock
+                            WHERE f.c_fallo = es.c_fallo )
+    ) OR
+    ( ie.c_especialidad <> 'PE'  AND  NOT EXISTS
+        (SELECT 1    
+                            FROM   fallo f noholdlock
+                            WHERE f.c_fallo = vp.c_fallo) )
+    )
+        
+        )  x
+        GROUP BY  x.anno
+`;
+
+const ListadoPendienteSentidoFalloxPonente = (n_sala, fecha) => `
+    SELECT
+    RTRIM(z.c_usuario_vocal) AS "00_Ponente" ,
+                count(CASE WHEN z.mes = 1  THEN 1 END) AS "01_Enero",
+                count(CASE WHEN z.mes = 2  THEN 1 END) AS "02_Febrero",
+                count(CASE WHEN z.mes = 3  THEN 1 END) AS "03_Marzo",
+                count(CASE WHEN z.mes = 4  THEN 1 END) AS "04_Abril",
+                count(CASE WHEN z.mes = 5  THEN 1 END) AS "05_Mayo",
+                count(CASE WHEN z.mes = 6  THEN 1 END) AS "06_Junio",
+                count(CASE WHEN z.mes = 7  THEN 1 END) AS "07_Julio",
+                count(CASE WHEN z.mes = 8  THEN 1 END) AS "08_Agosto",    
+                count(CASE WHEN z.mes = 9  THEN 1 END) AS "09_Setiembre",
+                count(CASE WHEN z.mes = 10 THEN 1 END) AS "10_Octubre",
+                count(CASE WHEN z.mes = 11 THEN 1 END) AS "11_Noviembre",
+                count(CASE WHEN z.mes = 12 THEN 1 END) AS "12_Diciembre"            
+            
+        FROM  
+        ( SELECT    
+        cg.n_unico ,
+        cg.n_incidente ,
+        cg.c_usuario_vocal ,
+        ie.n_exp_sala n_num_recurso,
+        ie.n_ano_sala n_ano_recurso ,
+        mim.x_desc_motivo_ingreso nom_recurso ,
+        cg.c_instancia,
+        cg.f_programacion ,
+        year(cg.f_programacion) anno ,
+        month(cg.f_programacion) mes
+        FROM instancia_expediente ie (INDEX insta_expe_unic)  noholdlock
+        JOIN expediente e noholdlock
+        ON e.n_unico=ie.n_unico
+        AND e.n_incidente=ie.n_incidente
+        JOIN conformacion_grupo   cg noholdlock
+            ON ie.c_distrito = cg.c_distrito AND ie.c_provincia = cg.c_provincia
+                    AND ie.c_instancia = cg.c_instancia AND ie.n_unico = cg.n_unico
+                    AND ie.n_incidente = cg.n_incidente AND ie.f_ingreso = cg.f_ingreso
+                    AND cg.l_ultimo = 'S' AND cg.l_ultimo_audiencia = 'S'
+                    AND cg.l_reprogramado = 'N' AND cg.l_no_vista = 'N' AND cg.l_publicado = 'S'
+                    AND cg.c_usuario_vocal IS NOT NULL    
+    
+        JOIN expediente_estado ee noholdlock ON ee.n_unico = ie.n_unico
+        AND ee.n_incidente = ie.n_incidente AND ee.l_ultimo = 'S'
+
+    LEFT JOIN expediente_sentido es noholdlock ON
+    es.c_programacion = cg.c_programacion AND es.n_grupo = cg.n_grupo
+        AND es.n_secuencia = cg.n_secuencia AND es.n_conformacion = cg.n_conformacion
+        AND es.n_unico = cg.n_unico AND es.n_incidente = cg.n_incidente AND es.l_activo = 'S'
+        LEFT JOIN expediente_votacion_parte vp noholdlock ON
+    vp.n_unico = es.n_unico
+    AND vp.n_incidente = es.n_incidente
+    AND vp.n_sentido   = es.n_sentido
+    AND vp.l_activo    = 'S'
+    AND ( vp.c_sentido IS NOT NULL OR vp.c_fallo IS NOT NULL OR vp.x_observacion IS NOT NULL)  
+    JOIN motivo_ingreso_maestro mim noholdlock
+        ON ie.c_motivo_ingreso = mim.c_motivo_ingreso
+        
+        WHERE ie.c_distrito = '50'
+        AND  ie.c_provincia = '01'
+        AND ie.c_instancia = '${n_sala}'    
+        AND cg.f_programacion BETWEEN ${fecha}  
+        AND ie.l_ultimo = 'S'
+        AND cg.num_tipo_audiencia <> 5
+        AND ISNULL(e.l_anulado,'N') = 'N'
+        AND ee.c_estado NOT IN ('066','396')  
+        AND  (( ie.c_especialidad ='PE' AND  NOT EXISTS
+        (SELECT 1    
+                            FROM   fallo f noholdlock
+                            WHERE f.c_fallo = es.c_fallo )
+    ) OR
+    ( ie.c_especialidad <> 'PE'  AND  NOT EXISTS
+        (SELECT 1    
+                            FROM   fallo f noholdlock
+                            WHERE f.c_fallo = vp.c_fallo) )
+    )
+        
+        )  z
+        GROUP BY  z.c_usuario_vocal
+`;
+
+const ListadoPendienteSentidoFalloxPonenteDetallado = (n_sala, fecha, ponente) => `
+    SELECT  
+            CONVERT(varchar(4),year(cg.f_programacion)) + '-' + s.x_descripcion AS '00_AñoMes',
+            RTRIM(cg.c_usuario_vocal) AS '01_Ponente',
+            RTRIM(mim.x_desc_motivo_ingreso)+ ' ' + CONVERT(varchar(10),ie.n_exp_sala) + '-' + ie.n_ano_sala AS '02_Recurso',
+            CONVERT(varchar(10), ie.f_ingreso, 103) AS '03_FechaIngreso',
+            RTRIM(em.x_desc_estado) AS '04_EstadoExp',
+            CONVERT(varchar(10), cg.f_programacion, 103) AS '05_FechaProgramacion',
+            ISNULL (pao.x_descripcion, '----------') AS '06_TipoAudiencia',
+            datediff( dd, cg.f_programacion, getdate() ) AS '07_DiasPendiente'
+            
+    
+        FROM instancia_expediente ie (INDEX insta_expe_unic)  noholdlock
+        JOIN expediente e noholdlock
+        ON e.n_unico=ie.n_unico
+        AND e.n_incidente=ie.n_incidente
+        JOIN conformacion_grupo   cg noholdlock
+            ON ie.c_distrito = cg.c_distrito AND ie.c_provincia = cg.c_provincia
+                    AND ie.c_instancia = cg.c_instancia AND ie.n_unico = cg.n_unico
+                    AND ie.n_incidente = cg.n_incidente AND ie.f_ingreso = cg.f_ingreso
+                    AND cg.l_ultimo = 'S' AND cg.l_ultimo_audiencia = 'S'
+                    AND cg.l_reprogramado = 'N' AND cg.l_no_vista = 'N' AND cg.l_publicado = 'S'
+                    AND cg.c_usuario_vocal IS NOT NULL    
+    
+        JOIN expediente_estado ee noholdlock ON ee.n_unico = ie.n_unico
+        AND ee.n_incidente = ie.n_incidente AND ee.l_ultimo = 'S'
+
+        JOIN estado_maestro em noholdlock ON em.c_estado = ee.c_estado
+        JOIN meses s ON s.n_mes = month(cg.f_programacion)
+        LEFT JOIN tipo_programa_audiencia_organo pao (INDEX idx_tipo_programa_aud_org_001) NOHOLDLOCK
+        ON pao.num_tipo_audiencia = cg.num_tipo_audiencia
+        AND pao.c_org_jurisd = '01'
+        AND pao.c_especialidad = ie.c_especialidad
+
+    LEFT JOIN expediente_sentido es noholdlock ON
+    es.c_programacion = cg.c_programacion AND es.n_grupo = cg.n_grupo
+        AND es.n_secuencia = cg.n_secuencia AND es.n_conformacion = cg.n_conformacion
+        AND es.n_unico = cg.n_unico AND es.n_incidente = cg.n_incidente AND es.l_activo = 'S'
+        LEFT JOIN expediente_votacion_parte vp noholdlock ON
+    vp.n_unico = es.n_unico
+    AND vp.n_incidente = es.n_incidente
+    AND vp.n_sentido   = es.n_sentido
+    AND vp.l_activo    = 'S'
+    AND ( vp.c_sentido IS NOT NULL OR vp.c_fallo IS NOT NULL OR vp.x_observacion IS NOT NULL)  
+    JOIN motivo_ingreso_maestro mim noholdlock
+        ON ie.c_motivo_ingreso = mim.c_motivo_ingreso
+        
+        WHERE ie.c_distrito = '50'
+        AND  ie.c_provincia = '01'
+        AND ie.c_instancia = '${n_sala}'    
+        AND cg.f_programacion BETWEEN ${fecha}   
+        AND cg.c_usuario_vocal LIKE '%${ponente}%'
+        AND ie.l_ultimo = 'S'
+        AND cg.num_tipo_audiencia <> 5
+        AND ISNULL(e.l_anulado,'N') = 'N'
+        AND ee.c_estado NOT IN ('066','396')  
+        AND  (( ie.c_especialidad ='PE' AND  NOT EXISTS
+        (SELECT 1    
+                            FROM   fallo f noholdlock
+                            WHERE f.c_fallo = es.c_fallo )
+    ) OR
+    ( ie.c_especialidad <> 'PE'  AND  NOT EXISTS
+        (SELECT 1    
+                            FROM   fallo f noholdlock
+                            WHERE f.c_fallo = vp.c_fallo) )
+    )
+    order by   cg.f_programacion
+`;
+
+//QUERY VERSUS INGRESOS Y PROGRAMADOS X AÑO
+const ListadoVersusIngresosyProgramadoxAnio = (anio) => `
+    SELECT
+    CASE WHEN ie.c_instancia = '101' THEN  '101_SPP'
+        WHEN ie.c_instancia  = '102' THEN  '102_SPT'      
+        WHEN ie.c_instancia  = '201' THEN   '201_SCP'
+        WHEN ie.c_instancia  = '202' THEN   '202_SCT'
+        WHEN ie.c_instancia  = '203' THEN   '203_SDCP'
+        WHEN ie.c_instancia  = '204' THEN   '204_1SDCT'
+        WHEN ie.c_instancia  = '206' THEN   '206_2SDCT'
+        WHEN ie.c_instancia  = '207' THEN   '207_3SDCT'  
+        WHEN ie.c_instancia  = '208' THEN   '208_4SDCT'
+        WHEN ie.c_instancia  = '209' THEN  '209_5SDCT'  END AS "00_Sala" ,
+        year(ie.f_registro) AS "01_Año",                    
+        count(ie.n_incidente) AS "02_Ingresados",
+    (SELECT COUNT(1)
+    FROM conformacion_grupo cg noholdlock
+    WHERE cg.c_distrito= '50'
+        AND cg.c_provincia = '01'
+        AND cg.c_instancia = ie.c_instancia
+        AND cg.l_ultimo = 'S'
+        AND year(cg.f_programacion) = year(ie.f_registro)
+        
+        ) AS "Programados"
+    FROM instancia_expediente ie noholdlock
+    JOIN expediente e noholdlock
+    ON e.n_unico = ie.n_unico
+    AND e.n_incidente = ie.n_incidente
+    WHERE ie.c_distrito= '50'
+    AND ie.c_provincia='01'
+    AND ie.c_instancia IN ('101', '102' ,  '201', '202', '203', '204',  '206', '207', '208', '209' )    
+    AND ie.l_ultimo = 'S'
+    AND year(ie.f_registro) = ${anio}
+    GROUP BY ie.c_instancia, year(ie.f_registro)  
+`;
+
+const ListadoVersusIngresosyProgramadoxMes = (n_sala, anio) => `
+    SELECT
+    CASE WHEN ie.c_instancia  = '101' THEN   '101_SPP'
+        WHEN ie.c_instancia  = '102' THEN  '102_SPT'      
+        WHEN ie.c_instancia  = '201' THEN   '201_SCP'
+        WHEN ie.c_instancia  = '202' THEN   '202_SCT'
+        WHEN ie.c_instancia  = '203' THEN   '203_SDCP'
+        WHEN ie.c_instancia  = '204' THEN   '204_1SDCT'
+        WHEN ie.c_instancia  = '206' THEN   '206_2SDCT'
+        WHEN ie.c_instancia  = '207' THEN   '207_3SDCT'  
+        WHEN ie.c_instancia  = '208' THEN   '208_4SDCT'
+        WHEN ie.c_instancia  = '209' THEN  '209_5SDCT'  END AS "00_Sala" ,
+        year(ie.f_registro) AS "01_Año",
+        month(ie.f_registro ) AS "02_Mes",
+    count(ie.n_incidente) AS "Ingresados",
+    (SELECT COUNT(1)
+    FROM conformacion_grupo cg noholdlock
+    WHERE cg.c_distrito= '50'
+        AND cg.c_provincia = '01'
+        AND cg.c_instancia = ie.c_instancia
+        AND cg.l_ultimo = 'S'
+        AND year(cg.f_programacion) = year(ie.f_registro)
+        AND month(cg.f_programacion) = month(ie.f_registro)
+        ) AS "Programados"
+    FROM instancia_expediente ie noholdlock
+    JOIN expediente e noholdlock
+    ON e.n_unico = ie.n_unico
+    AND e.n_incidente = ie.n_incidente
+    WHERE ie.c_distrito= '50'
+    AND ie.c_provincia='01'
+    AND ie.c_instancia =  '${n_sala}'      
+    AND ie.l_ultimo = 'S'
+    AND year(ie.f_registro) = ${anio}
+    GROUP BY ie.c_instancia,  year(ie.f_registro)  , month(ie.f_registro )             
+`;
+
 export const scripts = {
     ListadoExpIngresos,
     ListadoIngresoMensualxTipRecurso,
@@ -446,7 +818,13 @@ export const scripts = {
     ListadoProgramacionesPonente,
     ListadoProgramacionesFirmadoPonente,
     ListadoProgramacionesPonenteRecurso,
+    ListadoProgramacionPendientexSala,
     ListadoEscritosAnual,
     ListaTipoEscritos,
-    ListadoEscritosPendienteAtendido
+    ListadoEscritosPendienteAtendido,
+    ListadoPendienteSentidoFalloxSala,
+    ListadoPendienteSentidoFalloxPonente,
+    ListadoPendienteSentidoFalloxPonenteDetallado,
+    ListadoVersusIngresosyProgramadoxAnio,
+    ListadoVersusIngresosyProgramadoxMes
 };

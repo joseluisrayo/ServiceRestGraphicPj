@@ -37,6 +37,11 @@ GET http://localhost:4000/api/getListadoProgramacionesPonenteRecurso/201/2020-09
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
 
 
+### GET getListadoProgramacionesPendientexSala
+GET http://localhost:4000/api/getListadoProgramacionesPendientexSala/2022-01-01/2022-08-10
+authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
+
+
 ###################################ESCRITOS#####################################################
 ### GET getListadoEscritosAnual
 GET http://localhost:4000/api/getListadoEscritosAnual/2022-01-01/2022-08-10
@@ -50,4 +55,30 @@ authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy
 
 ### GET getListadoEscritosPendienteAtendido
 GET http://localhost:4000/api/getListadoEscritosPendienteAtendido/101/2022-01-01/2022-08-10
+authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
+
+
+###################################PENDIENTE-FALLO###############################################
+### GET getListdoPendienteSentidoFalloxSala
+GET http://localhost:4000/api/getListdoPendienteSentidoFalloxSala/2022-01-01/2022-08-10
+authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
+
+
+### GET getListadoPendienteSentidoFalloxPonente
+GET http://localhost:4000/api/getListadoPendienteSentidoFalloxPonente/101/2022-01-01/2022-08-10
+authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
+
+### GET getListadoPendienteSentidoFalloxPonenteDetallado
+GET http://localhost:4000/api/getListadoPendienteSentidoFalloxPonenteDetallado/201/2020-09-14/2022-09-14/AARANDAR
+authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
+
+
+###################################INGRESOS VS PROGRAMADOS###############################################
+### GET getListadoVersusIngresosyProgramadoxAnio
+GET http://localhost:4000/api/getListadoVersusIngresosyProgramadoxAnio/2022
+authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
+
+
+### GET getListadoVersusIngresosyProgramadoxMes
+GET http://localhost:4000/api/getListadoVersusIngresosyProgramadoxMes/101/2022
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
