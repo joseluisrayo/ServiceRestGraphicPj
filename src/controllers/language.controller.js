@@ -714,16 +714,14 @@ const validarFecha = (v_fechaIni, v_fechaFin) => {
   const ultimaFechaAniosFormat = moment(fechaFinDate).format(
     "MM-DD-YYYY [23:59:59.000]"
   );
-
   const fechaActualFormat = moment(new Date()).format(
     "MM-DD-YYYY [23:59:59.000]"
   );
 
-  const ultimaFecha =
-    ultimaFechaAniosFormat >= fechaActualFormat
-      ? fechaActualFormat
-      : ultimaFechaAniosFormat;
-      
+  const ultimaFecha = moment(ultimaFechaAniosFormat).isAfter(fechaActualFormat, "year")
+    ? fechaActualFormat
+    : ultimaFechaAniosFormat;
+
   return `'${primerFechaAniosFormat}' AND '${ultimaFecha}'`;
 };
 
