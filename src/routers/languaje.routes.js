@@ -104,4 +104,11 @@ router.get(
     languageController.getListadoVersusIngresosyProgramadoxMes
 );
 
+//QUERY EJEMPLO CON PROCEDIMIENTO ALMACENADO
+router.get(
+    "/api/getListadoPendienteFalloxPonenteProcedure/:instancia/:fechaini/:fechafin/:ponente",
+    languageController.validarAccessToken,
+    languageController.getListadoPendienteFalloxPonenteProcedure
+);
+
 export default router;

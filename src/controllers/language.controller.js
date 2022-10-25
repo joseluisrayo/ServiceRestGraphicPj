@@ -3,6 +3,7 @@ import config from "./../config.js";
 import { scripts as consultasql } from "./../database/scripts.js";
 import jwt from "jsonwebtoken";
 import moment from "moment";
+moment.suppressDeprecationWarnings = true;
 
 // const generateAccessToken = () => {
 //   //Default_token: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
@@ -694,6 +695,68 @@ const getListadoVersusIngresosyProgramadoxMes = async (req, res, next) => {
   }
 };
 
+//QUERY EJEMPLO CON PROCEDIMIENTO ALMACENADO
+const getListadoPendienteFalloxPonenteProcedure = async (req, res, next) => {
+  try {
+    let { instancia, fechaini, fechafin, ponente } = req.params;
+    if (
+      instancia.length != 0 &&
+      fechaini.length != 0 &&
+      fechafin.length != 0 &&
+      ponente.length != 0
+    ) {
+      // const result_fecha = validarFecha(fechaini, fechafin);
+      const result_fechaIni = validarFechaProcedure(fechaini, "f_ini");
+      const result_fechaFin = validarFechaProcedure(fechafin, "f_fin");
+
+      ponente === "SCASTAÑEDA" && (ponente = "SCASTA");
+      ponente === "HNUÑEZ" && (ponente = "HNU");
+
+      const querys = `execute dbo.uspw_PendienteFalloPonente;1 
+      @c_instancia = '${instancia}', 
+      @c_ponente = '${ponente}', 
+      @pdt_f_ini = '${result_fechaIni}', 
+      @pdt_f_fin = '${result_fechaFin}'`;
+
+      const db = new SybasePromised({
+        host: config.host,
+        port: config.port,
+        dbname: config.dbname,
+        username: config.username,
+        password: config.password,
+      });
+
+      await db.connect((error) => {
+        if (error) {
+          res
+            .status(500)
+            .send("No se conectar con la base de datos, intentelo mas tarde.");
+          return console.log(
+            "Error connection: getListadoProgramacionesPonenteRecurso"
+          );
+        }
+      });
+
+      const data = await db.query(querys);
+      const replaces = data.map((item) => {
+        const preplace1 = (item["01_Ponente"] || "").replace("�", "Ñ");
+        const preplace2 = (item["06_TipoAudiencia"] || "").replace("�", "ó");
+        preplace1.length > 0 && (item["01_Ponente"] = preplace1);
+        preplace2.length > 0 && (item["06_TipoAudiencia"] = preplace2);
+        return item;
+      });
+      res.status(200).json(replaces);
+      db.disconnect();
+    } else {
+      res.status(400).send("No se aceptan parametros vacios.");
+      console.log("No se aceptan parametros vacios.");
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
+    console.log(error.message);
+  }
+};
+
 //commons
 const validarFecha = (v_fechaIni, v_fechaFin) => {
   const fechaIniSplit = v_fechaIni.split("-");
@@ -718,11 +781,46 @@ const validarFecha = (v_fechaIni, v_fechaFin) => {
     "MM-DD-YYYY [23:59:59.000]"
   );
 
-  const ultimaFecha = moment(ultimaFechaAniosFormat).isAfter(fechaActualFormat, "year")
+  const ultimaFecha = moment(ultimaFechaAniosFormat).isAfter(
+    fechaActualFormat,
+    "year"
+  )
     ? fechaActualFormat
     : ultimaFechaAniosFormat;
 
   return `'${primerFechaAniosFormat}' AND '${ultimaFecha}'`;
+};
+
+const validarFechaProcedure = (v_fecha, opc) => {
+  const fechaSplit = v_fecha.split("-");
+  const fechaIniDate = new Date(
+    fechaSplit[0],
+    fechaSplit[1] - 1,
+    fechaSplit[2]
+  );
+
+  if (opc === "f_ini") {
+    const primerFechaAniosFormat = moment(fechaIniDate).format(
+      "MM-DD-YYYY [00:00:00.000]"
+    );
+    return primerFechaAniosFormat;
+
+  } else {
+    const ultimaFechaAniosFormat = moment(fechaIniDate).format(
+      "MM-DD-YYYY [23:59:59.000]"
+    );
+    const fechaActualFormat = moment(new Date()).format(
+      "MM-DD-YYYY [23:59:59.000]"
+    );
+    const ultimaFecha = moment(ultimaFechaAniosFormat).isAfter(
+      fechaActualFormat,
+      "year"
+    )
+      ? fechaActualFormat
+      : ultimaFechaAniosFormat;
+    
+    return ultimaFecha;
+  }
 };
 
 const validarAccessToken = async (req, res, next) => {
@@ -754,4 +852,5 @@ export const methods = {
   getListadoPendienteSentidoFalloxPonenteDetallado,
   getListadoVersusIngresosyProgramadoxAnio,
   getListadoVersusIngresosyProgramadoxMes,
+  getListadoPendienteFalloxPonenteProcedure,
 };

@@ -82,3 +82,8 @@ authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy
 ### GET getListadoVersusIngresosyProgramadoxMes
 GET http://localhost:4000/api/getListadoVersusIngresosyProgramadoxMes/101/2022
 authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
+
+
+### GET getListadoPendienteFalloxPonenteProcedure
+GET http://localhost:4000/api/getListadoPendienteFalloxPonenteProcedure/101/2020-01-01/2022-10-24/CSANMARTIN
+authorization: eyJhbGciOiJIUzI1NiJ9.c3VwcmVtYQ.cpUyTYcgm8ixIVDTLe-Fua0RLkyUKg8yy2IkAOfKi2I
